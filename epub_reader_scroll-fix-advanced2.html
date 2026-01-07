@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>EPUB Reader (epub.js) - 3 livelli TOC + Scroll</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex; flex-direction: column;
+    }
+    header {
+      padding: 10px; background: #1e1e1e; color: white;
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    #controls { display: flex; gap: 8px; align-items: center; }
+    button { padding: 6px 10px; cursor: pointer; }
+    button:disabled { 
+      opacity: 0.4; 
+      cursor: not-allowed; 
+      background: #ccc;
+    }
+    #fontInfo {
+      font-size: 12px;
+      color: #ccc;
+      min-width: 60px;
+    }
+    
+    /* Toggle switch styling */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 12px;
+      padding-left: 12px;
+      border-left: 1px solid #444;
+    }
+    .toggle-label {
+      font-size: 13px;
+      color: #ccc;
+    }
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 24px;
+      background: #444;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .toggle-switch.active {
+      background: #4CAF50;
+    }
+    .toggle-slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: left 0.3s;
+    }
+    .toggle-switch.active .toggle-slider {
+      left: 28px;
+    }
+    
+    /* Bottone per doppia pagina */
+    #dualPageBtn {
+      background: #444;
+      color: white;
+      border: 1px solid #666;
+      padding: 6px 12px;
+      transition: background 0.3s;
+    }
+    #dualPageBtn.active {
+      background: #4CAF50;
+      border-color: #4CAF50;
+    }
+    
+    /* Bottone per sidebar */
+    #toggleSidebarBtn {
+      background: #444;
+      color: white;
+      border: 1px solid #666;
+    }
+    
+    /* Bottone tema */
+    #themeBtn {
+      background: #444;
+      color: white;
+      border: 1px solid #666;
+      padding: 6px 12px;
+      min-width: 80px;
+    }
+    #themeBtn.sepia {
+      background: #f4ecd8;
+      color: #5c4a2f;
+      border-color: #d4c4a8;
+    }
+    #themeBtn.dark {
+      background: #2a2a2a;
+      color: #e0e0e0;
+      border-color: #444;
+    }
+    
+    /* Nascondi sidebar */
+    #bookmarks.hidden {
+      display: none;
+    }
+    
+    #container { flex: 1; display: flex; min-height: 0; }
+    #bookmarks {
+      width: 260px; border-right: 1px solid #ddd;
+      overflow-y: auto; font-size: 14px;
+    }
+    #bookmarks ul { 
+      list-style: none; 
+      padding: 0; 
+      margin: 0; 
+      padding-left: 0; 
+    }
+    #bookmarks li {
+      padding: 8px 10px; cursor: pointer;
+      border-bottom: 1px solid #eee; user-select: none;
+      position: relative;
+    }
+    #bookmarks li.expandable { 
+      font-weight: 600; 
+      background: #fafafa; 
+      padding-left: 10px;
+    }
+    #bookmarks li.expandable::before {
+      content: '▶ ';
+      display: inline-block;
+      width: 12px;
+      margin-right: 4px;
+      font-size: 10px;
+    }
+    #bookmarks li.expandable.open::before {
+      content: '▼ ';
+    }
+    #bookmarks ul.level-2 { padding-left: 20px; }
+    #bookmarks ul.level-3 { padding-left: 40px; }
+    #bookmarks ul.sub { display: none; }
+    #bookmarks ul.sub.open { display: block; }
+    #bookmarks li:hover { background: #f0f0f0; }
+    #bookmarks li.leaf {
+      padding-left: 26px;
+      font-weight: normal;
+      background: transparent;
+    }
+    #viewer { flex: 1; position: relative; overflow: hidden; min-height: 0; }
+    #viewer iframe { 
+      width: 100%; 
+      height: 100%; 
+      border: none; 
+      font-size-adjust: none !important;
+    }
+    /* Forza la traducibilità dell'iframe */
+    #viewer iframe[translate="no"] {
+      translate: yes !important;
+    }
+    #status {
+      padding: 6px 10px; font-size: 12px;
+      background: #f5f5f5; border-top: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <strong>EPUB Reader (3 livelli TOC + Scroll)</strong>
+  <input type="file" id="fileInput" accept=".epub" />
+  <div id="controls">
+    <button id="fontMinus">A−</button>
+    <button id="fontReset">A</button>
+    <button id="fontPlus">A+</button>
+    <span id="fontInfo">100%</span>
+    <button id="prevBtn">◀ Prev</button>
+    <button id="nextBtn">Next ▶</button>
+    <button id="dualPageBtn" title="Doppia Pagina">📖 Doppia</button>
+    <button id="toggleSidebarBtn" title="Mostra/Nascondi Segnalibri">☰</button>
+    <button id="themeBtn" title="Cambia Tema">🎨 Normale</button>
+  </div>
+  <div class="toggle-container">
+    <span class="toggle-label">Scroll Mode</span>
+    <div class="toggle-switch" id="scrollToggle">
+      <div class="toggle-slider"></div>
+    </div>
+  </div>
+</header>
+
+<div id="container">
+  <nav id="bookmarks"><ul id="toc" class="level-1"></ul></nav>
+  <div id="viewer"></div>
+</div>
+
+<div id="status">Seleziona un file EPUB…</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+<script>
+let book = null;
+let rendition = null;
+let fontSize = 100;
+let scrollMode = false;
+let dualPageMode = false;
+let sidebarVisible = true;
+let currentTheme = 'normal'; // normal, sepia, dark
+let currentLocation = null;
+
+function setStatus(msg) {
+  document.getElementById('status').textContent = msg;
+}
+
+function updateFontInfo() {
+  document.getElementById('fontInfo').textContent = fontSize + '%';
+}
+
+function applyTheme() {
+  if (!rendition) return;
+  
+  try {
+    updateFontInfo();
+    
+    // Applica tema colore
+    let themeColors = {};
+    switch(currentTheme) {
+      case 'sepia':
+        themeColors = {
+          body: {
+            'background': '#f4ecd8 !important',
+            'color': '#5c4a2f !important'
+          }
+        };
+        break;
+      case 'dark':
+        themeColors = {
+          body: {
+            'background': '#1a1a1a !important',
+            'color': '#e0e0e0 !important'
+          }
+        };
+        break;
+      default: // normal
+        themeColors = {
+          body: {
+            'background': '#ffffff !important',
+            'color': '#000000 !important'
+          }
+        };
+    }
+    
+    rendition.themes.override('font-size', fontSize + '%');
+    rendition.themes.register('color-theme', themeColors);
+    rendition.themes.select('color-theme');
+    
+    rendition.themes.register('custom-font', {
+      '*': {
+        'font-size': `${fontSize}% !important`
+      }
+    });
+    
+    rendition.themes.select('custom-font');
+    
+    const contents = rendition.getContents();
+    if (contents && contents.length > 0) {
+      contents.forEach(content => {
+        try {
+          const doc = content.document;
+          const styleId = 'epub-reader-font-size-override';
+          let style = doc.getElementById(styleId);
+          
+          if (!style) {
+            style = doc.createElement('style');
+            style.id = styleId;
+            doc.head.appendChild(style);
+          }
+          
+          let bgColor = '#ffffff';
+          let textColor = '#000000';
+          if (currentTheme === 'sepia') {
+            bgColor = '#f4ecd8';
+            textColor = '#5c4a2f';
+          } else if (currentTheme === 'dark') {
+            bgColor = '#1a1a1a';
+            textColor = '#e0e0e0';
+          }
+          
+          style.textContent = `
+            body {
+              background: ${bgColor} !important;
+              color: ${textColor} !important;
+            }
+            body, body * {
+              font-size: ${fontSize}% !important;
+            }
+            p, div, span, li, td, th, a, h1, h2, h3, h4, h5, h6 {
+              font-size: ${fontSize}% !important;
+              color: ${textColor} !important;
+            }
+          `;
+        } catch (e) {
+          console.log('Errore iniettando CSS:', e);
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Errore applicando tema:', error);
+  }
+}
+
+async function recreateRendition() {
+  if (!book) return;
+  
+  const viewer = document.getElementById('viewer');
+  
+  // Salva la posizione corrente
+  if (rendition) {
+    currentLocation = rendition.currentLocation();
+    rendition.destroy();
+  }
+  
+  viewer.innerHTML = '';
+  
+  // Determina spread mode
+  let spreadMode = 'none';
+  if (dualPageMode && !scrollMode) {
+    spreadMode = 'auto';
+  }
+  
+  // Crea nuovo rendition con flow appropriato
+  rendition = book.renderTo('viewer', {
+    width: '100%',
+    height: '100%',
+    spread: spreadMode,
+    flow: scrollMode ? 'scrolled' : 'paginated',
+    allowScriptedContent: true,
+    manager: scrollMode ? 'continuous' : 'default',
+    minSpreadWidth: 0
+  });
+  
+  // In scroll mode, forza il caricamento anticipato di più contenuto
+  if (scrollMode && rendition.manager) {
+    rendition.manager.settings.infinite = false;
+  }
+
+  // Hook per iniettare CSS quando il contenuto viene caricato
+  rendition.hooks.content.register((contents) => {
+    const style = contents.document.createElement('style');
+    style.textContent = `
+      img {
+        max-width: 100% !important;
+        height: auto !important;
+        width: auto !important;
+        display: block;
+      }
+    `;
+    contents.document.head.appendChild(style);
+    
+    // Abilita la traduzione per il contenuto
+    const body = contents.document.body;
+    if (body) {
+      body.setAttribute('translate', 'yes');
+      body.classList.add('notranslate'); // Rimuovi classe che blocca traduzione
+      body.classList.remove('notranslate');
+    }
+    
+    // Abilita traduzione su html
+    const html = contents.document.documentElement;
+    if (html) {
+      html.setAttribute('translate', 'yes');
+      html.removeAttribute('notranslate');
+    }
+    
+    setTimeout(() => {
+      applyTheme();
+    }, 100);
+  });
+
+  rendition.on('rendered', () => {
+    setTimeout(() => {
+      applyTheme();
+      
+      // Trova e marca l'iframe come traducibile
+      const iframes = viewer.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        iframe.setAttribute('translate', 'yes');
+        iframe.removeAttribute('notranslate');
+        
+        // Tenta di accedere al documento interno
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          if (iframeDoc) {
+            iframeDoc.documentElement.setAttribute('translate', 'yes');
+            iframeDoc.body.setAttribute('translate', 'yes');
+          }
+        } catch (e) {
+          // Ignora errori di accesso cross-origin
+        }
+      });
+    }, 50);
+  });
+
+  // Ripristina la posizione se disponibile
+  if (currentLocation && currentLocation.start) {
+    await rendition.display(currentLocation.start.cfi);
+  } else {
+    await rendition.display();
+  }
+  
+  applyTheme();
+}
+
+async function navigateToHref(href) {
+  if (!href || !rendition) return;
+  
+  try {
+    // In entrambe le modalità usiamo display()
+    await rendition.display(href);
+  } catch (error) {
+    console.error('Errore navigazione:', error);
+    // Fallback: ricrea rendition solo se display fallisce
+    if (scrollMode) {
+      currentLocation = { start: { cfi: href } };
+      await recreateRendition();
+    }
+  }
+}
+
+function renderBookmarksSimple(toc) {
+  const container = document.getElementById('toc');
+  container.innerHTML = '';
+  
+  toc.forEach(item => {
+    const hasSub1 = item.subitems && item.subitems.length > 0;
+    
+    const li1 = document.createElement('li');
+    li1.className = 'expandable';
+    li1.textContent = item.label;
+    container.appendChild(li1);
+    
+    if (hasSub1) {
+      const ul1 = document.createElement('ul');
+      ul1.className = 'sub level-2';
+      container.appendChild(ul1);
+      
+      li1.onclick = (e) => {
+        e.stopPropagation();
+        li1.classList.toggle('open');
+        ul1.classList.toggle('open');
+      };
+      
+      item.subitems.forEach(sub1 => {
+        const hasSub2 = sub1.subitems && sub1.subitems.length > 0;
+        
+        const li2 = document.createElement('li');
+        if (hasSub2) {
+          li2.className = 'expandable';
+        } else {
+          li2.className = 'leaf';
+        }
+        li2.textContent = sub1.label;
+        ul1.appendChild(li2);
+        
+        if (hasSub2) {
+          const ul2 = document.createElement('ul');
+          ul2.className = 'sub level-3';
+          ul1.appendChild(ul2);
+          
+          li2.onclick = (e) => {
+            e.stopPropagation();
+            li2.classList.toggle('open');
+            ul2.classList.toggle('open');
+          };
+          
+          sub1.subitems.forEach(sub2 => {
+            const li3 = document.createElement('li');
+            li3.className = 'leaf';
+            li3.textContent = sub2.label;
+            li3.onclick = (e) => {
+              e.stopPropagation();
+              if (sub2.href) {
+                navigateToHref(sub2.href);
+              }
+            };
+            ul2.appendChild(li3);
+          });
+        } else {
+          li2.onclick = (e) => {
+            e.stopPropagation();
+            if (sub1.href) {
+              navigateToHref(sub1.href);
+            }
+          };
+        }
+      });
+    } else {
+      li1.className = 'leaf';
+      li1.onclick = (e) => {
+        e.stopPropagation();
+        if (item.href) {
+          navigateToHref(item.href);
+        }
+      };
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const fileInput = document.getElementById('fileInput');
+  const viewer = document.getElementById('viewer');
+  const scrollToggle = document.getElementById('scrollToggle');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const dualPageBtn = document.getElementById('dualPageBtn');
+  const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+  const themeBtn = document.getElementById('themeBtn');
+  const bookmarks = document.getElementById('bookmarks');
+
+  updateFontInfo();
+
+  // Assicurati che i pulsanti siano abilitati all'avvio
+  prevBtn.disabled = false;
+  nextBtn.disabled = false;
+
+  document.getElementById('fontPlus').onclick = () => { 
+    fontSize = Math.min(200, fontSize + 5); 
+    applyTheme(); 
+  };
+  
+  document.getElementById('fontMinus').onclick = () => { 
+    fontSize = Math.max(50, fontSize - 5); 
+    applyTheme(); 
+  };
+  
+  document.getElementById('fontReset').onclick = () => { 
+    fontSize = 100; 
+    applyTheme(); 
+  };
+
+  prevBtn.onclick = () => rendition && rendition.prev();
+  nextBtn.onclick = () => rendition && rendition.next();
+
+  // Toggle scroll mode
+  scrollToggle.onclick = async () => {
+    scrollMode = !scrollMode;
+    scrollToggle.classList.toggle('active', scrollMode);
+    
+    // Disabilita/abilita i pulsanti prev/next
+    prevBtn.disabled = scrollMode;
+    nextBtn.disabled = scrollMode;
+    
+    // Disabilita doppia pagina in scroll mode
+    if (scrollMode && dualPageMode) {
+      dualPageMode = false;
+      dualPageBtn.classList.remove('active');
+    }
+    dualPageBtn.disabled = scrollMode;
+    
+    if (book && rendition) {
+      await recreateRendition();
+      setStatus(scrollMode ? 'Modalità Scroll attivata' : 'Modalità Pagina attivata');
+    }
+  };
+
+  // Toggle doppia pagina
+  dualPageBtn.onclick = async () => {
+    if (scrollMode) return; // Non disponibile in scroll mode
+    
+    dualPageMode = !dualPageMode;
+    dualPageBtn.classList.toggle('active', dualPageMode);
+    
+    if (book && rendition) {
+      await recreateRendition();
+      setStatus(dualPageMode ? 'Doppia pagina attivata' : 'Pagina singola attivata');
+    }
+  };
+
+  // Toggle sidebar
+  toggleSidebarBtn.onclick = () => {
+    sidebarVisible = !sidebarVisible;
+    bookmarks.classList.toggle('hidden', !sidebarVisible);
+    
+    // Forza il ridimensionamento del rendition dopo aver nascosto/mostrato la sidebar
+    if (rendition) {
+      setTimeout(() => {
+        rendition.resize();
+      }, 50);
+    }
+    
+    setStatus(sidebarVisible ? 'Segnalibri visibili' : 'Segnalibri nascosti');
+  };
+
+  // Cicla tra i temi
+  themeBtn.onclick = async () => {
+    const themes = ['normal', 'sepia', 'dark'];
+    const currentIndex = themes.indexOf(currentTheme);
+    currentTheme = themes[(currentIndex + 1) % themes.length];
+    
+    // Aggiorna il bottone
+    themeBtn.className = currentTheme;
+    switch(currentTheme) {
+      case 'sepia':
+        themeBtn.textContent = '🎨 Seppia';
+        break;
+      case 'dark':
+        themeBtn.textContent = '🎨 Dark';
+        break;
+      default:
+        themeBtn.textContent = '🎨 Normale';
+    }
+    
+    applyTheme();
+    setStatus(`Tema ${currentTheme} attivato`);
+  };
+
+  fileInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setStatus('Caricamento EPUB…');
+    viewer.innerHTML = '';
+    document.getElementById('toc').innerHTML = '';
+    currentLocation = null;
+
+    if (book) {
+      try { 
+        if (rendition) rendition.destroy();
+        book.destroy(); 
+      } catch (e) {}
+      book = null;
+      rendition = null;
+    }
+
+    try {
+      const buffer = await file.arrayBuffer();
+      book = ePub(buffer, {
+        openAs: 'binary',
+        replacements: 'base64'
+      });
+      await book.ready;
+      await book.resources.replacements();
+
+      // Determina spread mode
+      let spreadMode = 'none';
+      if (dualPageMode && !scrollMode) {
+        spreadMode = 'auto';
+      }
+
+      rendition = book.renderTo('viewer', {
+        width: '100%',
+        height: '100%',
+        spread: spreadMode,
+        flow: scrollMode ? 'scrolled' : 'paginated',
+        allowScriptedContent: true,
+        manager: scrollMode ? 'continuous' : 'default',
+        minSpreadWidth: 0
+      });
+      
+      // In scroll mode, forza il caricamento anticipato di più contenuto
+      if (scrollMode && rendition.manager) {
+        rendition.manager.settings.infinite = false;
+      }
+
+      rendition.hooks.content.register((contents) => {
+        const style = contents.document.createElement('style');
+        style.textContent = `
+          img {
+            max-width: 100% !important;
+            height: auto !important;
+            width: auto !important;
+            display: block;
+          }
+        `;
+        contents.document.head.appendChild(style);
+        
+        setTimeout(() => {
+          applyTheme();
+        }, 100);
+      });
+
+      rendition.on('rendered', () => {
+        setTimeout(() => {
+          applyTheme();
+          
+          // Trova e marca l'iframe come traducibile
+          const iframes = viewer.querySelectorAll('iframe');
+          iframes.forEach(iframe => {
+            iframe.setAttribute('translate', 'yes');
+            iframe.removeAttribute('notranslate');
+            
+            try {
+              const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+              if (iframeDoc) {
+                iframeDoc.documentElement.setAttribute('translate', 'yes');
+                iframeDoc.body.setAttribute('translate', 'yes');
+              }
+            } catch (e) {
+              // Ignora errori
+            }
+          });
+        }, 50);
+      });
+
+      await rendition.display();
+      applyTheme();
+
+      const navigation = await book.loaded.navigation;
+      renderBookmarksSimple(navigation.toc);
+
+      setStatus('EPUB caricato correttamente');
+    } catch (err) {
+      console.error(err);
+      setStatus('Errore nel caricamento EPUB (vedi console)');
+      alert('Errore nel caricamento EPUB');
+    }
+  });
+});
+</script>
+</body>
+</html>
