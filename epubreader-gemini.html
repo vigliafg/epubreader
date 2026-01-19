@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>EPUB Reader - Advanced Web Reader</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex; flex-direction: column;
+    }
+    
+    header {
+      padding: 6px 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    
+    header strong { font-size: 14px; margin-right: 8px; white-space: nowrap; }
+    #fileInput { display: none; }
+    
+    #fileInputLabel {
+      font-size: 12px; padding: 4px 12px; border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.2);
+      color: white; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 6px; transition: background 0.2s;
+    }
+    
+    #fileInputLabel:hover { background: rgba(255,255,255,0.3); }
+    #fileName { font-size: 11px; color: rgba(255,255,255,0.8); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    
+    .toolbar { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+    .toolbar-group { display: flex; gap: 3px; align-items: center; background: rgba(255,255,255,0.1); padding: 3px; border-radius: 6px; }
+    
+    .btn {
+      padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;
+      font-size: 12px; font-weight: 500; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 4px; min-height: 28px;
+      background: rgba(255,255,255,0.15); color: white; backdrop-filter: blur(10px);
+    }
+    
+    .btn:hover:not(:disabled) { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: #3b82f6; }
+    .btn-info { background: #06b6d4; }
+    .btn-warning { background: #f59e0b; }
+    
+    .btn-icon { padding: 5px 8px; min-width: 32px; justify-content: center; }
+    .btn.active { background: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3); }
+    
+    #fontInfo { font-size: 11px; color: white; min-width: 45px; text-align: center; background: rgba(0,0,0,0.2); padding: 4px 6px; border-radius: 3px; }
+    
+    #container { flex: 1; display: flex; min-height: 0; }
+    #bookmarks { width: 260px; border-right: 1px solid #ddd; overflow-y: auto; font-size: 14px; flex-shrink: 0; background: #fff; }
+    #bookmarks.hidden { display: none; }
+    
+    #bookmarks ul { list-style: none; padding: 0; margin: 0; }
+    #bookmarks li { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #eee; position: relative; }
+    #bookmarks li.expandable { font-weight: 600; background: #fafafa; }
+    #bookmarks li.expandable::before { content: '▶ '; font-size: 10px; margin-right: 5px; }
+    #bookmarks li.expandable.open::before { content: '▼ '; }
+    #bookmarks ul.sub { display: none; padding-left: 15px; background: #fff; }
+    #bookmarks ul.sub.open { display: block; }
+    #bookmarks li:hover { background: #f0f0f0; }
+    #bookmarks li.leaf { padding-left: 25px; font-weight: normal; }
+
+    #viewer { flex: 1; position: relative; overflow: hidden; background: #eee; }
+    #status { padding: 6px 10px; font-size: 12px; background: #f5f5f5; border-top: 1px solid #ddd; }
+
+    body.theme-sepia #bookmarks { background: #f4ecd8; color: #5b4636; }
+    body.theme-dark #bookmarks { background: #1a1a1a; color: #ccc; border-right-color: #333; }
+    body.theme-dark #bookmarks li { border-bottom-color: #333; }
+  </style>
+</head>
+<body class="theme-normal">
+
+<header>
+  <strong>EPUB Reader</strong>
+  <input type="file" id="fileInput" accept=".epub" />
+  <label for="fileInput" id="fileInputLabel"><i class="bi bi-folder2-open"></i> Choose File</label>
+  <span id="fileName">No file selected</span>
+  
+  <div class="toolbar">
+    <button class="btn btn-icon btn-primary" id="toggleSidebarBtn" title="Toggle Sidebar"><i class="bi bi-layout-sidebar"></i></button>
+    <div class="toolbar-group">
+      <button class="btn btn-icon" id="fontMinus1" title="Decrease Font"><i class="bi bi-dash"></i></button>
+      <button class="btn btn-icon" id="fontReset" title="Reset Font"><i class="bi bi-arrow-counterclockwise"></i></button>
+      <button class="btn btn-icon" id="fontPlus1" title="Increase Font"><i class="bi bi-plus"></i></button>
+      <span id="fontInfo">100%</span>
+      <button class="btn btn-icon btn-warning" id="lineHeightBtn" title="Line Height"><i class="bi bi-text-paragraph"></i></button>
+    </div>
+    <div class="toolbar-group">
+      <button class="btn btn-icon btn-info" id="prevBtn" title="Previous Page"><i class="bi bi-chevron-left"></i></button>
+      <button class="btn btn-icon btn-info" id="nextBtn" title="Next Page"><i class="bi bi-chevron-right"></i></button>
+    </div>
+    <div class="toolbar-group">
+      <button class="btn btn-icon" id="dualPageBtn" title="Dual Page Mode"><i class="bi bi-book"></i></button>
+      <button class="btn btn-icon" id="scrollModeBtn" title="Scroll Mode"><i class="bi bi-arrow-down-up"></i></button>
+    </div>
+    <div class="toolbar-group">
+      <button class="btn btn-icon" id="themeBtn" title="Change Theme"><i class="bi bi-palette"></i></button>
+    </div>
+  </div>
+</header>
+
+<div id="container">
+  <nav id="bookmarks"><ul id="toc"></ul></nav>
+  <div id="viewer"></div>
+</div>
+
+<div id="status">Select an EPUB file…</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+
+<script>
+let book = null;
+let rendition = null;
+let fontSize = 100;
+let lineHeight = 1.2;
+let scrollMode = false;
+let dualPageMode = false;
+let sidebarVisible = true;
+let currentTheme = 'normal';
+let currentLocation = null;
+
+function setStatus(msg) { document.getElementById('status').textContent = msg; }
+
+/**
+ * Funzione di navigazione robusta e sicura (BASELINE).
+ * Gestisce errori di percorso, risoluzione intelligente e tentativi falliti senza bloccare l'interfaccia.
+ */
+async function navigateToHref(href) {
+  if (!href || !rendition || !book) return;
+  
+  // 1. Pulizia e decodifica dell'href
+  let target = href.trim();
+  try {
+    target = decodeURIComponent(target);
+  } catch(e) { /* ignore encoding errors */ }
+
+  if (target.startsWith("epubcfi")) {
+    try { await rendition.display(target); } catch(e) { console.error("CFI failed", e); }
+    return;
+  }
+
+  try {
+    // TENTATIVO 1: Navigazione diretta
+    // Funziona se il percorso è corretto e assoluto rispetto alla root interna
+    await rendition.display(target);
+    
+  } catch (error1) {
+    console.warn("Direct display failed, trying smart resolution...", error1);
+    
+    try {
+      // Preparazione per la ricerca intelligente
+      const [pathPart, anchor] = target.split('#');
+      const fileName = pathPart.split('/').pop(); // es: "intro.xhtml"
+      
+      let item = null;
+
+      // TENTATIVO 2: Cerca nella Spine un file che finisce con lo stesso nome
+      // Questo bypassa i problemi di cartelle (es: "OEBPS/text/intro.xhtml" vs "intro.xhtml")
+      book.spine.each((spineItem) => {
+        if (!item && spineItem.href && spineItem.href.endsWith(fileName)) {
+          item = spineItem;
+        }
+      });
+
+      if (item) {
+        console.log("Found corresponding spine item:", item.href);
+        const finalTarget = anchor ? `${item.href}#${anchor}` : item.href;
+        await rendition.display(finalTarget);
+      } else {
+        // ULTIMO TENTATIVO: Prova a navigare solo all'ancora se esiste
+        if (anchor) {
+          // A volte basta passare l'ID se è univoco nel documento
+          await rendition.display(anchor); 
+        } else {
+          throw new Error("Section not found in spine");
+        }
+      }
+
+    } catch (error2) {
+      console.error("All navigation attempts failed:", error2);
+      setStatus("Error: Could not open section. " + error2.message);
+    }
+  }
+}
+
+function applyTheme() {
+  if (!rendition) return;
+  document.getElementById('fontInfo').textContent = fontSize + '%';
+  
+  const colors = {
+    normal: { bg: '#ffffff', fg: '#000000' },
+    sepia: { bg: '#f4ecd8', fg: '#5b4636' },
+    gray: { bg: '#e5e7eb', fg: '#000000' },
+    dark: { bg: '#1a1a1a', fg: '#e0e0e0' }
+  };
+
+  const active = colors[currentTheme];
+  document.body.className = 'theme-' + currentTheme;
+
+  rendition.themes.register('custom', {
+    body: {
+      'background': `${active.bg} !important`,
+      'color': `${active.fg} !important`,
+      'font-size': `${fontSize}% !important`,
+      'line-height': `${lineHeight} !important`
+    },
+    'p, div, span, li, h1, h2, h3, h4, h5, h6': {
+       'font-size': `${fontSize}% !important`,
+       'color': `${active.fg} !important`,
+       'line-height': `${lineHeight} !important`
+    }
+  });
+  rendition.themes.select('custom');
+}
+
+async function recreateRendition() {
+  if (!book) return;
+  if (rendition) {
+    currentLocation = rendition.currentLocation();
+    rendition.destroy();
+  }
+  
+  const viewer = document.getElementById('viewer');
+  viewer.innerHTML = '';
+
+  rendition = book.renderTo('viewer', {
+    width: '100%',
+    height: '100%',
+    spread: (dualPageMode && !scrollMode) ? 'auto' : 'none',
+    flow: scrollMode ? 'scrolled' : 'paginated',
+    manager: scrollMode ? 'continuous' : 'default'
+  });
+
+  rendition.on('linkClicked', (href) => {
+    navigateToHref(href);
+  });
+
+  rendition.hooks.content.register((contents) => {
+    const style = contents.document.createElement('style');
+    style.textContent = `img { max-width: 100% !important; height: auto !important; }`;
+    contents.document.head.appendChild(style);
+    setTimeout(applyTheme, 50);
+  });
+
+  if (currentLocation) await rendition.display(currentLocation.start.cfi);
+  else await rendition.display();
+  
+  applyTheme();
+}
+
+function renderBookmarksSimple(toc) {
+  const container = document.getElementById('toc');
+  container.innerHTML = '';
+  
+  const createList = (items, level) => {
+    const ul = document.createElement('ul');
+    ul.className = level === 1 ? '' : 'sub';
+    
+    items.forEach(item => {
+      const li = document.createElement('li');
+      const hasSub = item.subitems && item.subitems.length > 0;
+      
+      li.textContent = item.label;
+      li.className = hasSub ? 'expandable' : 'leaf';
+      
+      // Listener robusto per il click (BASELINE)
+      li.addEventListener('click', (e) => {
+        e.stopPropagation(); // Evita click multipli
+        
+        // 1. Gestione Navigazione
+        if (item.href) {
+          navigateToHref(item.href);
+        }
+        
+        // 2. Gestione Espansione/Collasso
+        if (hasSub) {
+          li.classList.toggle('open');
+          const subUl = li.nextElementSibling;
+          if (subUl && subUl.tagName === 'UL') {
+            subUl.classList.toggle('open');
+          }
+        }
+      });
+      
+      ul.appendChild(li);
+      
+      if (hasSub) {
+        const subUl = createList(item.subitems, level + 1);
+        ul.appendChild(subUl);
+      }
+    });
+    return ul;
+  };
+  
+  container.appendChild(createList(toc, 1));
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const fileInput = document.getElementById('fileInput');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const dualPageBtn = document.getElementById('dualPageBtn');
+  const scrollModeBtn = document.getElementById('scrollModeBtn');
+  const themeBtn = document.getElementById('themeBtn');
+  const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+
+  document.getElementById('fontPlus1').onclick = () => { fontSize += 5; applyTheme(); };
+  document.getElementById('fontMinus1').onclick = () => { fontSize = Math.max(50, fontSize - 5); applyTheme(); };
+  document.getElementById('fontReset').onclick = () => { fontSize = 100; applyTheme(); };
+  
+  document.getElementById('lineHeightBtn').onclick = () => {
+    const steps = [1, 1.2, 1.5, 1.8, 2];
+    lineHeight = steps[(steps.indexOf(lineHeight) + 1) % steps.length];
+    applyTheme();
+  };
+
+  prevBtn.onclick = () => rendition?.prev();
+  nextBtn.onclick = () => rendition?.next();
+
+  scrollModeBtn.onclick = () => {
+    scrollMode = !scrollMode;
+    scrollModeBtn.classList.toggle('active', scrollMode);
+    if (scrollMode) dualPageMode = false;
+    recreateRendition();
+  };
+
+  dualPageBtn.onclick = () => {
+    if (scrollMode) return;
+    dualPageMode = !dualPageMode;
+    dualPageBtn.classList.toggle('active', dualPageMode);
+    recreateRendition();
+  };
+
+  toggleSidebarBtn.onclick = () => {
+    sidebarVisible = !sidebarVisible;
+    document.getElementById('bookmarks').classList.toggle('hidden', !sidebarVisible);
+    if (rendition) setTimeout(() => rendition.resize(), 100);
+  };
+
+  themeBtn.onclick = () => {
+    const themes = ['normal', 'sepia', 'gray', 'dark'];
+    currentTheme = themes[(themes.indexOf(currentTheme) + 1) % themes.length];
+    applyTheme();
+  };
+
+  fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    document.getElementById('fileName').textContent = file.name;
+    setStatus('Loading EPUB...');
+    
+    if (book) {
+      try { book.destroy(); } catch(e) {}
+    }
+    
+    try {
+      const buffer = await file.arrayBuffer();
+      book = ePub(buffer);
+      await book.ready;
+      
+      await recreateRendition();
+      
+      const nav = await book.loaded.navigation;
+      renderBookmarksSimple(nav.toc);
+      setStatus('Ready');
+    } catch (err) {
+      console.error(err);
+      setStatus('Error loading file');
+    }
+  });
+});
+</script>
+</body>
+</html>
