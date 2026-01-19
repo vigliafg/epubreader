@@ -78,7 +78,7 @@ https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css
 
 ### Installazione
 1. **Scarica** il file HTML
-2. **Apri** il file con qualsiasi browser moderno (Chrome, Firefox, Safari, Edge)
+2. **Apri** il file con qualsiasi browser moderno (Chrome, Safari, Edge)
 3. Nessuna installazione o configurazione richiesta!
 
 ### Utilizzo Base
@@ -104,7 +104,6 @@ https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css
 
 ### Browser Supportati
 - ✅ Chrome/Edge 90+
-- ✅ Firefox 88+
 - ✅ Safari 14+
 - ✅ Opera 76+
 
