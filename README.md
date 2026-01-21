@@ -15,7 +15,7 @@ Un lettore EPUB moderno, completamente autocontenuto in un singolo file HTML, co
 ### 📖 Funzionalità Complete di Lettura
 - **Indice interattivo a 3 livelli** con espansione/collasso gerarchico
 - **Modalità di visualizzazione multiple**: paginated, scroll continuo, doppia pagina
-- **4 temi di lettura**: Normal, Sepia, Gray, Dark
+- **5 temi di lettura**: Normal, Sepia, Gray, Dark Gray, Dark
 - **Controllo tipografia avanzato**: font size (50%-200%) e interlinea (1, 1.2, 1.4, 1.6, 1.8)
 - **Navigazione fluida** tramite pulsanti o segnalibri
 
