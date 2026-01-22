@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>EPUB Reader - Advanced Web Reader</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 6px 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    header strong {
+      font-size: 14px;
+      margin-right: 8px;
+      white-space: nowrap;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    #fileInputLabel {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    #fileInputLabel:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    #fileInputLabel i {
+      font-size: 14px;
+    }
+
+    #fileName {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 3px;
+      border-radius: 6px;
+    }
+
+    .btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 28px;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #2563eb;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: #059669;
+    }
+
+    .btn-warning {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-warning:hover:not(:disabled) {
+      background: #d97706;
+    }
+
+    .btn-info {
+      background: #06b6d4;
+      color: white;
+    }
+
+    .btn-info:hover:not(:disabled) {
+      background: #0891b2;
+    }
+
+    .btn i {
+      font-size: 14px;
+    }
+
+    .btn-icon {
+      padding: 5px 8px;
+      min-width: 32px;
+      justify-content: center;
+    }
+
+    .btn.active {
+      background: #10b981;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+    }
+
+    #fontInfo {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.9);
+      min-width: 45px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 4px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    #themeBtn.sepia {
+      background: #f4ecd8;
+      color: #000000;
+    }
+
+    #themeBtn.gray {
+      background: #e5e7eb;
+      color: #000000;
+    }
+
+    #themeBtn.darkgray {
+      background: #4b5563;
+      color: #000000;
+    }
+
+    #themeBtn.dark {
+      background: #1a1a1a;
+      color: #e0e0e0;
+    }
+
+    #container {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    #bookmarks {
+      width: 260px;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    #bookmarks ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #bookmarks li {
+      padding: 8px 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      user-select: none;
+      position: relative;
+    }
+
+    #bookmarks li.expandable {
+      font-weight: 600;
+      background: #fafafa;
+      padding-left: 10px;
+    }
+
+    #bookmarks li.expandable::before {
+      content: '▶ ';
+      display: inline-block;
+      width: 12px;
+      margin-right: 4px;
+      font-size: 10px;
+    }
+
+    #bookmarks li.expandable.open::before {
+      content: '▼ ';
+    }
+
+    #bookmarks ul.level-2 {
+      padding-left: 20px;
+    }
+
+    #bookmarks ul.level-3 {
+      padding-left: 40px;
+    }
+
+    #bookmarks ul.sub {
+      display: none;
+    }
+
+    #bookmarks ul.sub.open {
+      display: block;
+    }
+
+    #bookmarks li:hover {
+      background: #f0f0f0;
+    }
+
+    #bookmarks li.leaf {
+      padding-left: 26px;
+      font-weight: normal;
+      background: transparent;
+    }
+
+    #bookmarks.hidden {
+      display: none;
+    }
+
+    #viewer {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    #viewer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    #status {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: #f5f5f5;
+      border-top: 1px solid #ddd;
+    }
+
+    @media screen and (max-width: 1024px) {
+      #bookmarks {
+        width: 30%;
+        min-width: 200px;
+        max-width: 300px;
+      }
+
+      header {
+        padding: 5px 6px;
+        gap: 6px;
+      }
+
+      .toolbar-group {
+        gap: 2px;
+        padding: 2px;
+      }
+
+      .btn {
+        padding: 4px 7px;
+        font-size: 11px;
+        min-height: 26px;
+      }
+
+      header strong {
+        font-size: 12px;
+      }
+    }
+
+    @media screen and (max-width: 768px) {
+      #bookmarks {
+        width: 35%;
+        min-width: 180px;
+        max-width: 250px;
+        font-size: 13px;
+      }
+
+      header {
+        padding: 4px 5px;
+        gap: 4px;
+      }
+
+      #fileName {
+        max-width: 100px;
+      }
+
+      .toolbar {
+        gap: 3px;
+      }
+
+      .toolbar-group {
+        gap: 2px;
+        padding: 2px;
+      }
+
+      .btn {
+        padding: 3px 6px;
+        font-size: 10px;
+        min-height: 24px;
+      }
+
+      .btn-icon {
+        padding: 3px 5px;
+        min-width: 28px;
+      }
+
+      #fontInfo {
+        font-size: 10px;
+        min-width: 40px;
+        padding: 3px 4px;
+      }
+
+      header strong {
+        font-size: 11px;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      #bookmarks {
+        width: 40%;
+        min-width: 150px;
+        font-size: 12px;
+      }
+
+      #bookmarks li {
+        padding: 6px 8px;
+      }
+
+      header strong {
+        display: none;
+      }
+
+      #fileName {
+        display: none;
+      }
+
+      .toolbar {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <strong>EPUB Reader</strong>
+    <input type="file" id="fileInput" accept=".epub" />
+    <label for="fileInput" id="fileInputLabel">
+      <i class="bi bi-folder2-open"></i>
+      Choose File
+    </label>
+    <span id="fileName">No file selected</span>
+
+    <div class="toolbar">
+      <button class="btn btn-icon btn-primary" id="toggleSidebarBtn" title="Show/Hide Bookmarks">
+        <i class="bi bi-layout-sidebar"></i>
+      </button>
+
+      <div class="toolbar-group">
+        <button class="btn btn-icon" id="fontMinus1" title="Decrease font -1%">
+          <i class="bi bi-dash"></i>
+        </button>
+        <button class="btn btn-icon" id="fontMinus5" title="Decrease font -5%">
+          <i class="bi bi-dash-lg"></i>
+        </button>
+        <button class="btn btn-icon" id="fontReset" title="Reset font 100%">
+          <i class="bi bi-arrow-counterclockwise"></i>
+        </button>
+        <button class="btn btn-icon" id="fontPlus5" title="Increase font +5%">
+          <i class="bi bi-plus-lg"></i>
+        </button>
+        <button class="btn btn-icon" id="fontPlus1" title="Increase font +1%">
+          <i class="bi bi-plus"></i>
+        </button>
+        <span id="fontInfo">100%</span>
+        <button class="btn btn-icon btn-warning" id="lineHeightBtn" title="Line height: 1.2">
+          <i class="bi bi-text-paragraph"></i>
+        </button>
+      </div>
+
+      <div class="toolbar-group">
+        <button class="btn btn-icon btn-info" id="prevBtn" title="Previous page">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <button class="btn btn-icon btn-info" id="nextBtn" title="Next page">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+
+      <div class="toolbar-group">
+        <button class="btn btn-icon" id="dualPageBtn" title="Dual Page">
+          <i class="bi bi-book"></i>
+        </button>
+        <button class="btn btn-icon" id="scrollModeBtn" title="Scroll Mode">
+          <i class="bi bi-arrow-down-up"></i>
+        </button>
+      </div>
+
+      <div class="toolbar-group">
+        <button class="btn btn-icon" id="themeBtn" title="Change Theme">
+          <i class="bi bi-palette"></i>
+        </button>
+      </div>
+
+      <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.3); margin: 0 4px;"></div>
+
+      <button class="btn btn-icon btn-success" id="extractChapterBtn" title="Extract Current Chapter to New Tab">
+        <i class="bi bi-file-earmark-arrow-down"></i>
+      </button>
+    </div>
+  </header>
+
+  <div id="container">
+    <nav id="bookmarks">
+      <ul id="toc"></ul>
+    </nav>
+    <div id="viewer"></div>
+  </div>
+
+  <div id="status">Select an EPUB file…</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+
+  <script>
+    let book = null;
+    let rendition = null;
+    let fontSize = 100;
+    let lineHeight = 1.2;
+    let scrollMode = false;
+    let dualPageMode = false;
+    let sidebarVisible = true;
+    let currentTheme = 'normal';
+    let currentLocation = null;
+
+    function setStatus(msg) {
+      document.getElementById('status').textContent = msg;
+    }
+
+    function updateFontInfo() {
+      document.getElementById('fontInfo').textContent = fontSize + '%';
+    }
+
+    function updateLineHeightTooltip() {
+      document.getElementById('lineHeightBtn').title = `Line height: ${lineHeight}`;
+    }
+
+    async function navigateToHref(href) {
+      if (!href || !rendition || !book) return;
+
+      let target = href.trim();
+      try {
+        target = decodeURIComponent(target);
+      } catch (e) { }
+
+      if (target.startsWith("epubcfi")) {
+        try { await rendition.display(target); } catch (e) { console.error("CFI failed", e); }
+        return;
+      }
+
+      try {
+        await rendition.display(target);
+      } catch (error1) {
+        console.warn("Direct display failed, trying smart resolution...", error1);
+
+        try {
+          const [pathPart, anchor] = target.split('#');
+          const fileName = pathPart.split('/').pop();
+
+          let item = null;
+          book.spine.each((spineItem) => {
+            if (!item && spineItem.href && spineItem.href.endsWith(fileName)) {
+              item = spineItem;
+            }
+          });
+
+          if (item) {
+            console.log("Found corresponding spine item:", item.href);
+            const finalTarget = anchor ? `${item.href}#${anchor}` : item.href;
+            await rendition.display(finalTarget);
+          } else {
+            if (anchor) {
+              await rendition.display(anchor);
+            } else {
+              throw new Error("Section not found in spine");
+            }
+          }
+        } catch (error2) {
+          console.error("All navigation attempts failed:", error2);
+          setStatus("Error: Could not open section. " + error2.message);
+        }
+      }
+    }
+
+    async function extractCurrentChapter() {
+      if (!book || !rendition) {
+        alert('Please load an EPUB first');
+        return;
+      }
+
+      setStatus('Extracting chapter...');
+
+      try {
+        const location = rendition.currentLocation();
+        if (!location || !location.start) {
+          alert('Cannot determine current chapter');
+          return;
+        }
+
+        const currentHref = location.start.href;
+        let currentSpineItem = book.spine.get(currentHref);
+
+        if (!currentSpineItem) {
+          const spineIndex = location.start.index;
+          currentSpineItem = book.spine.get(spineIndex);
+        }
+
+        if (!currentSpineItem) {
+          alert('Cannot find current chapter in book structure');
+          return;
+        }
+
+        const nav = await book.loaded.navigation;
+        let chapterTitle = 'Chapter';
+
+        function findTocEntry(items, targetHref) {
+          for (const item of items) {
+            if (item.href && targetHref.includes(item.href.split('#')[0])) {
+              return item;
+            }
+            if (item.subitems) {
+              const found = findTocEntry(item.subitems, targetHref);
+              if (found) return found;
+            }
+          }
+          return null;
+        }
+
+        const tocEntry = findTocEntry(nav.toc, currentSpineItem.href);
+        if (tocEntry) {
+          chapterTitle = tocEntry.label;
+        }
+
+        setStatus('Loading chapter content...');
+
+        // Load the section
+        const section = book.spine.get(currentSpineItem.href);
+        await section.load(book.load.bind(book));
+
+        const doc = section.document;
+        if (!doc || !doc.body) {
+          alert('Cannot extract chapter content');
+          return;
+        }
+
+        setStatus('Processing images...');
+
+        // Get access to the underlying JSZip archive
+        const zip = book.archive.zip;
+
+        // DEBUG: List all files in the archive to understand the structure
+        console.log('=== ARCHIVE CONTENTS ===');
+        const archiveFiles = zip ? Object.keys(zip.files) : [];
+        console.log('Files in archive:', archiveFiles);
+        console.log('Total files:', archiveFiles.length);
+
+        // Find image files
+        const imageFiles = archiveFiles.filter(f =>
+          f.toLowerCase().match(/\.(jpg|jpeg|png|gif|svg|webp|bmp)$/)
+        );
+        console.log('Image files found:', imageFiles);
+        console.log('========================');
+
+        // Clone the document to modify it
+        const clonedDoc = doc.cloneNode(true);
+
+        // Helper function to find a file in the zip with various path attempts
+        async function findAndLoadImage(srcPath, sectionPath) {
+          const sectionDir = sectionPath.substring(0, sectionPath.lastIndexOf('/') + 1);
+
+          // Combine paths and normalize
+          let imgPath = sectionDir + srcPath;
+
+          // Normalize: resolve .. and .
+          const parts = imgPath.split('/');
+          const resolved = [];
+          for (const part of parts) {
+            if (part === '..') {
+              resolved.pop();
+            } else if (part !== '.' && part !== '') {
+              resolved.push(part);
+            }
+          }
+          imgPath = resolved.join('/');
+
+          // Try multiple path variations
+          const pathsToTry = [
+            imgPath,
+            imgPath.replace(/^\//, ''),  // Without leading slash
+            '/' + imgPath,                // With leading slash
+            srcPath,                      // Original path
+            srcPath.replace(/^\.\.\//, ''), // Without leading ../
+          ];
+
+          // Also try matching just the filename in the archive
+          const filename = srcPath.split('/').pop();
+          const matchingFiles = archiveFiles.filter(f => f.endsWith('/' + filename) || f === filename);
+          pathsToTry.push(...matchingFiles);
+
+          console.log('Image src:', srcPath, '→ Trying paths:', pathsToTry);
+
+          for (const tryPath of pathsToTry) {
+            if (!tryPath) continue;
+
+            const normalizedPath = tryPath.replace(/^\//, ''); // Remove leading slash for zip access
+            const zipFile = zip.files[normalizedPath];
+
+            if (zipFile && !zipFile.dir) {
+              console.log('Found image at:', normalizedPath);
+              try {
+                const arrayBuffer = await zipFile.async('arraybuffer');
+                return { data: arrayBuffer, path: normalizedPath };
+              } catch (e) {
+                console.warn('Error reading file:', normalizedPath, e);
+              }
+            }
+          }
+
+          return null;
+        }
+
+        // Extract and convert ALL images to base64 using DOM manipulation
+        const imgElements = clonedDoc.querySelectorAll('img');
+
+        for (const imgEl of imgElements) {
+          const src = imgEl.getAttribute('src');
+
+          // Skip if already base64 or external URL
+          if (!src || src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
+            continue;
+          }
+
+          try {
+            const result = await findAndLoadImage(src, currentSpineItem.href);
+
+            if (result && result.data) {
+              const imgData = result.data;
+              const imgPath = result.path;
+
+              // Detect MIME type from actual file content (magic numbers)
+              let mimeType = 'image/jpeg'; // default
+              const view = new Uint8Array(imgData);
+
+              if (view.length >= 4) {
+                // PNG signature: 89 50 4E 47
+                if (view[0] === 0x89 && view[1] === 0x50 && view[2] === 0x4E && view[3] === 0x47) {
+                  mimeType = 'image/png';
+                }
+                // GIF signature: 47 49 46 38
+                else if (view[0] === 0x47 && view[1] === 0x49 && view[2] === 0x46 && view[3] === 0x38) {
+                  mimeType = 'image/gif';
+                }
+                // JPEG signature: FF D8 FF
+                else if (view[0] === 0xFF && view[1] === 0xD8 && view[2] === 0xFF) {
+                  mimeType = 'image/jpeg';
+                }
+                // WebP signature: 52 49 46 46 ... 57 45 42 50
+                else if (view[0] === 0x52 && view[1] === 0x49 && view[2] === 0x46 && view[3] === 0x46) {
+                  mimeType = 'image/webp';
+                }
+                // SVG: starts with <?xml or <svg
+                else if (view[0] === 0x3C) { // '<'
+                  const textStart = new TextDecoder().decode(view.slice(0, 100));
+                  if (textStart.includes('<svg') || textStart.includes('<?xml')) {
+                    mimeType = 'image/svg+xml';
+                  }
+                }
+              }
+
+              // Also check file extension as fallback
+              const ext = imgPath.split('.').pop().toLowerCase();
+              if (mimeType === 'image/jpeg') { // Only override default
+                const extMimeMap = {
+                  'png': 'image/png',
+                  'gif': 'image/gif',
+                  'webp': 'image/webp',
+                  'svg': 'image/svg+xml',
+                  'bmp': 'image/bmp'
+                };
+                if (extMimeMap[ext]) {
+                  mimeType = extMimeMap[ext];
+                }
+              }
+
+              console.log('Detected MIME type:', mimeType, 'from file:', imgPath);
+
+              // Convert ArrayBuffer to base64 in chunks to avoid call stack issues
+              const bytes = new Uint8Array(imgData);
+              const chunkSize = 0x8000; // 32KB chunks
+              let binary = '';
+              for (let i = 0; i < bytes.length; i += chunkSize) {
+                const chunk = bytes.subarray(i, i + chunkSize);
+                binary += String.fromCharCode.apply(null, chunk);
+              }
+              const base64 = btoa(binary);
+
+              const dataUrl = `data:${mimeType};base64,${base64}`;
+
+              console.log('✅ Image converted:', imgPath, '- Base64 length:', base64.length);
+
+              // Replace src attribute directly in the DOM element
+              imgEl.setAttribute('src', dataUrl);
+            } else {
+              console.warn('❌ Image not found in archive:', src);
+            }
+          } catch (e) {
+            console.warn('Error loading image:', src, e);
+          }
+        }
+
+        // Get HTML content from the modified document
+        let htmlContent = clonedDoc.body.innerHTML;
+
+        setStatus('Processing styles...');
+
+        // Extract ALL CSS styles
+        let allStyles = '';
+
+        // 1. Inline styles from <style> tags
+        const styleElements = doc.querySelectorAll('style');
+        for (const styleEl of styleElements) {
+          if (styleEl.textContent) {
+            allStyles += '/* Inline style */\n' + styleEl.textContent + '\n\n';
+          }
+        }
+
+        // 2. Linked stylesheets
+        const linkElements = doc.querySelectorAll('link[rel="stylesheet"]');
+        for (const link of linkElements) {
+          try {
+            const href = link.getAttribute('href');
+            if (href) {
+              // Manually resolve the path relative to the current section
+              const sectionPath = currentSpineItem.href;
+              const sectionDir = sectionPath.substring(0, sectionPath.lastIndexOf('/') + 1);
+
+              // Combine paths and normalize
+              let cssPath = sectionDir + href;
+
+              // Normalize: resolve .. and .
+              const parts = cssPath.split('/');
+              const resolved = [];
+              for (const part of parts) {
+                if (part === '..') {
+                  resolved.pop();
+                } else if (part !== '.' && part !== '') {
+                  resolved.push(part);
+                }
+              }
+              cssPath = resolved.join('/');
+
+              console.log('Loading stylesheet:', href, '→', cssPath);
+
+              // Add leading slash if not present
+              const archivePath = cssPath.startsWith('/') ? cssPath : '/' + cssPath;
+              console.log('Requesting stylesheet from archive:', archivePath);
+              const cssData = await book.archive.request(archivePath);
+              if (cssData) {
+                // Check if cssData is a string or ArrayBuffer
+                let cssText;
+                if (typeof cssData === 'string') {
+                  cssText = cssData;
+                } else {
+                  cssText = new TextDecoder('utf-8').decode(cssData);
+                }
+                allStyles += `/* Stylesheet: ${href} */\n` + cssText + '\n\n';
+                console.log('Stylesheet loaded:', cssPath);
+              } else {
+                console.warn('Stylesheet not found:', cssPath);
+              }
+            }
+          } catch (e) {
+            console.warn('Error loading stylesheet:', link.getAttribute('href'), e);
+          }
+        }
+
+        // 3. Get computed styles from the rendered content
+        const computedStyles = `
+      /* Additional computed styles */
+      body {
+        font-family: ${window.getComputedStyle(doc.body).fontFamily};
+        font-size: 16px;
+        line-height: 1.6;
+      }
+    `;
+
+        allStyles += computedStyles;
+
+        console.log('Total CSS length:', allStyles.length);
+
+        // Create standalone HTML document
+        const standaloneHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${chapterTitle}</title>
+  <style>
+    /* Base container styles */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    body {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #ffffff;
+      color: #333;
+    }
+    
+    /* Chapter header */
+    .chapter-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px 30px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .chapter-header h1 {
+      margin: 0;
+      font-size: 2em;
+      font-weight: 600;
+    }
+    
+    /* Content container */
+    .chapter-content {
+      background: white;
+      padding: 20px;
+      border-radius: 4px;
+    }
+    
+    /* Default typography */
+    .chapter-content p {
+      margin: 1em 0;
+      line-height: 1.8;
+    }
+    
+    .chapter-content img {
+      max-width: 100%;
+      height: auto !important;
+      display: block;
+      margin: 20px auto;
+    }
+    
+    .chapter-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+    }
+    
+    .chapter-content table td,
+    .chapter-content table th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    
+    /* Export info */
+    .export-info {
+      margin-top: 40px;
+      padding: 20px;
+      background: linear-gradient(135deg, #e0f7fa 0%, #e1f5fe 100%);
+      border-left: 4px solid #0277bd;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #01579b;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .export-info strong {
+      color: #01579b;
+    }
+    
+    @media print {
+      body {
+        max-width: 100%;
+        margin: 0;
+        padding: 20px;
+      }
+      .export-info {
+        display: none;
+      }
+      .chapter-header {
+        background: #667eea;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+    
+    /* === ORIGINAL EPUB STYLES === */
+    ${allStyles}
+  </style>
+</head>
+<body>
+  <div class="chapter-header">
+    <h1>${chapterTitle}</h1>
+  </div>
+  
+  <div class="chapter-content">
+    ${htmlContent}
+  </div>
+  
+  <div class="export-info">
+    <strong>✅ Chapter Successfully Extracted!</strong><br><br>
+    <strong>📋 Available Actions:</strong><br>
+    • <strong>Translate:</strong> Right-click anywhere → "Translate to..." OR use browser's translate button<br>
+    • <strong>Save as PDF:</strong> Ctrl+P (⌘+P on Mac) → Choose "Save as PDF"<br>
+    • <strong>Print:</strong> Ctrl+P (⌘+P on Mac) → Select your printer<br>
+    • <strong>Copy Text:</strong> Select and copy any text you need
+  </div>
+</body>
+</html>`;
+
+        // Create Blob URL
+        const blob = new Blob([standaloneHTML], { type: 'text/html;charset=utf-8' });
+        const blobURL = URL.createObjectURL(blob);
+
+        // Open in new tab
+        const newWindow = window.open(blobURL, '_blank');
+
+        if (newWindow) {
+          setStatus('✅ Chapter extracted! Check new tab');
+
+          // Clean up after delay
+          setTimeout(() => {
+            URL.revokeObjectURL(blobURL);
+          }, 10000);
+        } else {
+          alert('Please allow popups to extract chapters');
+          setStatus('Popup blocked');
+          URL.revokeObjectURL(blobURL);
+        }
+
+      } catch (error) {
+        console.error('Error extracting chapter:', error);
+        alert('Error extracting chapter: ' + error.message);
+        setStatus('Error extracting chapter');
+      }
+    }
+
+    function applyTheme() {
+      if (!rendition) return;
+
+      updateFontInfo();
+
+      const colors = {
+        normal: { bg: '#ffffff', fg: '#000000' },
+        sepia: { bg: '#f4ecd8', fg: '#000000' },
+        gray: { bg: '#e5e7eb', fg: '#000000' },
+        darkgray: { bg: '#4b5563', fg: '#f9fafb' },
+        dark: { bg: '#1a1a1a', fg: '#e0e0e0' }
+      };
+
+      const active = colors[currentTheme];
+
+      rendition.themes.register('custom', {
+        body: {
+          'background': `${active.bg} !important`,
+          'color': `${active.fg} !important`,
+          'font-size': `${fontSize}% !important`,
+          'line-height': `${lineHeight} !important`
+        },
+        'p, div, span, li, h1, h2, h3, h4, h5, h6': {
+          'font-size': `${fontSize}% !important`,
+          'color': `${active.fg} !important`,
+          'line-height': `${lineHeight} !important`
+        }
+      });
+      rendition.themes.select('custom');
+    }
+
+    async function recreateRendition() {
+      if (!book) return;
+      if (rendition) {
+        currentLocation = rendition.currentLocation();
+        rendition.destroy();
+      }
+
+      const viewer = document.getElementById('viewer');
+      viewer.innerHTML = '';
+
+      rendition = book.renderTo('viewer', {
+        width: '100%',
+        height: '100%',
+        spread: (dualPageMode && !scrollMode) ? 'auto' : 'none',
+        flow: scrollMode ? 'scrolled' : 'paginated',
+        manager: scrollMode ? 'continuous' : 'default'
+      });
+
+      rendition.on('linkClicked', (href) => {
+        navigateToHref(href);
+      });
+
+      rendition.hooks.content.register((contents) => {
+        const style = contents.document.createElement('style');
+        style.textContent = `img { max-width: 100% !important; height: auto !important; }`;
+        contents.document.head.appendChild(style);
+        setTimeout(applyTheme, 50);
+      });
+
+      if (currentLocation) await rendition.display(currentLocation.start.cfi);
+      else await rendition.display();
+
+      applyTheme();
+    }
+
+    function renderBookmarksSimple(toc) {
+      const container = document.getElementById('toc');
+      container.innerHTML = '';
+
+      const createList = (items, level) => {
+        const ul = document.createElement('ul');
+        if (level === 1) {
+          ul.className = '';
+        } else if (level === 2) {
+          ul.className = 'sub level-2';
+        } else if (level === 3) {
+          ul.className = 'sub level-3';
+        } else {
+          ul.className = 'sub';
+        }
+
+        items.forEach(item => {
+          const li = document.createElement('li');
+          const hasSub = item.subitems && item.subitems.length > 0;
+
+          li.textContent = item.label;
+          li.className = hasSub ? 'expandable' : 'leaf';
+
+          li.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            if (item.href) {
+              navigateToHref(item.href);
+            }
+
+            if (hasSub) {
+              li.classList.toggle('open');
+              const subUl = li.nextElementSibling;
+              if (subUl && subUl.tagName === 'UL') {
+                subUl.classList.toggle('open');
+              }
+            }
+          });
+
+          ul.appendChild(li);
+
+          if (hasSub) {
+            const subUl = createList(item.subitems, level + 1);
+            ul.appendChild(subUl);
+          }
+        });
+        return ul;
+      };
+
+      container.appendChild(createList(toc, 1));
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const fileInput = document.getElementById('fileInput');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const dualPageBtn = document.getElementById('dualPageBtn');
+      const scrollModeBtn = document.getElementById('scrollModeBtn');
+      const themeBtn = document.getElementById('themeBtn');
+      const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+      const lineHeightBtn = document.getElementById('lineHeightBtn');
+      const extractChapterBtn = document.getElementById('extractChapterBtn');
+      const bookmarks = document.getElementById('bookmarks');
+
+      updateFontInfo();
+      updateLineHeightTooltip();
+      extractChapterBtn.disabled = true;
+
+      document.getElementById('fontPlus5').onclick = () => {
+        fontSize = Math.min(200, fontSize + 5);
+        applyTheme();
+      };
+
+      document.getElementById('fontPlus1').onclick = () => {
+        fontSize = Math.min(200, fontSize + 1);
+        applyTheme();
+      };
+
+      document.getElementById('fontMinus5').onclick = () => {
+        fontSize = Math.max(50, fontSize - 5);
+        applyTheme();
+      };
+
+      document.getElementById('fontMinus1').onclick = () => {
+        fontSize = Math.max(50, fontSize - 1);
+        applyTheme();
+      };
+
+      document.getElementById('fontReset').onclick = () => {
+        fontSize = 100;
+        applyTheme();
+      };
+
+      lineHeightBtn.onclick = () => {
+        const lineHeights = [1, 1.2, 1.4, 1.6, 1.8];
+        const currentIndex = lineHeights.indexOf(lineHeight);
+        lineHeight = lineHeights[(currentIndex + 1) % lineHeights.length];
+        updateLineHeightTooltip();
+        applyTheme();
+        setStatus(`Line height: ${lineHeight}`);
+      };
+
+      prevBtn.onclick = () => rendition && rendition.prev();
+      nextBtn.onclick = () => rendition && rendition.next();
+
+      scrollModeBtn.onclick = async () => {
+        scrollMode = !scrollMode;
+        scrollModeBtn.classList.toggle('active', scrollMode);
+
+        prevBtn.disabled = scrollMode;
+        nextBtn.disabled = scrollMode;
+
+        if (scrollMode && dualPageMode) {
+          dualPageMode = false;
+          dualPageBtn.classList.remove('active');
+        }
+        dualPageBtn.disabled = scrollMode;
+
+        if (book && rendition) {
+          await recreateRendition();
+          setStatus(scrollMode ? 'Scroll mode enabled' : 'Page mode enabled');
+        }
+      };
+
+      dualPageBtn.onclick = async () => {
+        if (scrollMode) return;
+
+        dualPageMode = !dualPageMode;
+        dualPageBtn.classList.toggle('active', dualPageMode);
+
+        if (book && rendition) {
+          await recreateRendition();
+          setStatus(dualPageMode ? 'Dual page enabled' : 'Single page enabled');
+        }
+      };
+
+      toggleSidebarBtn.onclick = () => {
+        sidebarVisible = !sidebarVisible;
+        bookmarks.classList.toggle('hidden', !sidebarVisible);
+
+        if (rendition) {
+          setTimeout(() => {
+            rendition.resize();
+          }, 50);
+        }
+
+        setStatus(sidebarVisible ? 'Bookmarks visible' : 'Bookmarks hidden');
+      };
+
+      themeBtn.onclick = async () => {
+        const themes = ['normal', 'sepia', 'gray', 'darkgray', 'dark'];
+        const currentIndex = themes.indexOf(currentTheme);
+        currentTheme = themes[(currentIndex + 1) % themes.length];
+
+        themeBtn.className = 'btn btn-icon ' + currentTheme;
+        themeBtn.title = `Theme: ${currentTheme}`;
+
+        applyTheme();
+        setStatus(`Theme ${currentTheme} enabled`);
+      };
+
+      extractChapterBtn.onclick = async () => {
+        await extractCurrentChapter();
+      };
+
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        document.getElementById('fileName').textContent = file.name;
+        setStatus('Loading EPUB…');
+
+        document.getElementById('toc').innerHTML = '';
+        currentLocation = null;
+        extractChapterBtn.disabled = true;
+
+        if (book) {
+          try {
+            if (rendition) rendition.destroy();
+            book.destroy();
+          } catch (e) { }
+          book = null;
+          rendition = null;
+        }
+
+        try {
+          const buffer = await file.arrayBuffer();
+          book = ePub(buffer);
+          await book.ready;
+
+          await recreateRendition();
+
+          const nav = await book.loaded.navigation;
+          renderBookmarksSimple(nav.toc);
+
+          extractChapterBtn.disabled = false;
+          setStatus('EPUB loaded successfully');
+        } catch (err) {
+          console.error(err);
+          setStatus('Error loading EPUB (see console)');
+          alert('Error loading EPUB');
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
