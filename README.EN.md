@@ -15,7 +15,7 @@ A modern, fully self-contained single-file HTML EPUB reader with native browser 
 ### 📖 Complete Reading Features
 - **3-level interactive table of contents** with hierarchical expand/collapse
 - **Multiple viewing modes**: paginated, continuous scroll, dual page
-- **4 reading themes**: Normal, Sepia, Gray, Dark
+- **5 reading themes**: Normal, Sepia, Gray, Dark Gray, Dark
 - **Advanced typography control**: font size (50%-200%) and line height (1, 1.2, 1.4, 1.6, 1.8)
 - **Smooth navigation** via buttons or bookmarks
 
