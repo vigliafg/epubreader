@@ -387,44 +387,8 @@
     }
 
     .btn-icon.btn-nav {
-      min-width: 40px;
-      padding: 8px 12px;
-      height: 44px;
-    }
-
-    /* Navigation buttons anchored to container */
-    .floating-nav-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 100;
-      opacity: 0.8;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .floating-nav-btn:hover {
-      opacity: 1;
-      transform: translateY(-50%) scale(1.05);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .floating-nav-btn:active {
-      transform: translateY(-50%) scale(0.95);
-    }
-
-    /* Position prev button - account for sidebar when visible */
-    #prevBtn {
-      left: 10px;
-    }
-
-    #bookmarks:not(.hidden) ~ #prevBtn {
-      left: 270px; /* sidebar width (260px) + margin */
-    }
-
-    /* Position next button on the right side */
-    #nextBtn {
-      right: 10px;
+      min-width: 64px;
+      padding: 5px 16px;
     }
 
     .btn.active {
@@ -581,16 +545,31 @@
       flex: 1;
       display: flex;
       min-height: 0;
-      position: relative;
+      width: 100%;
     }
 
     #bookmarks {
-      width: 260px;
+      position: fixed;
+      left: 0;
+      top: 60px;
+      bottom: 0;
+      width: 280px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
       border-right: 1px solid #ddd;
+      padding: 12px;
       overflow-y: auto;
       font-size: 14px;
       flex-shrink: 0;
-      background: white;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      z-index: 100;
+      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    #bookmarks.hidden {
+      transform: translateX(-100%);
+      opacity: 0;
+      pointer-events: none;
     }
 
     #bookmarks ul {
@@ -651,10 +630,6 @@
       background: transparent;
     }
 
-    #bookmarks.hidden {
-      display: none;
-    }
-
     #viewer {
       flex: 1;
       position: relative;
@@ -666,6 +641,69 @@
       width: 100%;
       height: 100%;
       border: none;
+    }
+
+    /* Floating Navigation Buttons */
+    .floating-nav-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 25px;
+      height: 200px;
+      background: rgba(102, 126, 234, 0.9);
+      backdrop-filter: blur(10px);
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 90;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      opacity: 0.7;
+      border-radius: 0;
+    }
+
+    .floating-nav-btn:hover {
+      opacity: 1;
+      background: rgba(102, 126, 234, 1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .floating-nav-btn:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    #floatingPrevBtn {
+      left: 0;
+    }
+
+    #floatingNextBtn {
+      right: 0;
+    }
+
+    /* Hide floating buttons when they should be hidden */
+    .floating-nav-btn.hidden {
+      display: none !important;
+    }
+
+    /* Media queries for responsive sizing */
+    @media screen and (max-width: 768px) {
+      .floating-nav-btn {
+        width: 22px;
+        height: 180px;
+        font-size: 18px;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      .floating-nav-btn {
+        width: 20px;
+        height: 150px;
+        font-size: 16px;
+      }
     }
 
     #status {
@@ -696,12 +734,6 @@
         padding: 4px 7px;
         font-size: 11px;
         min-height: 26px;
-      }
-
-      .btn-icon.btn-nav {
-        min-width: 36px;
-        padding: 6px 10px;
-        height: 40px;
       }
 
       header strong {
@@ -744,12 +776,6 @@
       .btn-icon {
         padding: 3px 5px;
         min-width: 28px;
-      }
-
-      .btn-icon.btn-nav {
-        min-width: 32px;
-        padding: 4px 8px;
-        height: 36px;
       }
 
       #fontInfo {
@@ -798,12 +824,6 @@
 
       .library-title span {
         display: none;
-      }
-
-      .btn-icon.btn-nav {
-        min-width: 28px;
-        padding: 3px 6px;
-        height: 32px;
       }
     }
 
@@ -1003,10 +1023,6 @@
 
         <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.3); margin: 0 4px;"></div>
 
-        <!-- Navigation buttons moved to floating position -->
-
-        <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.3); margin: 0 4px;"></div>
-
         <div class="toolbar-group">
           <button class="btn btn-icon" id="scrollModeBtn" title="Scroll Mode">
             <i class="bi bi-arrow-down-up"></i>
@@ -1082,20 +1098,19 @@
     </header>
 
     <div id="container">
-      <nav id="bookmarks">
+      <nav id="bookmarks" translate="yes" lang="">
         <ul id="toc"></ul>
       </nav>
-      
       <div id="viewer"></div>
-      
-      <!-- Navigation buttons anchored to container -->
-      <button class="btn btn-icon btn-info btn-nav floating-nav-btn" id="prevBtn" title="Previous page">
-        <i class="bi bi-chevron-left"></i>
-      </button>
-      <button class="btn btn-icon btn-info btn-nav floating-nav-btn" id="nextBtn" title="Next page">
-        <i class="bi bi-chevron-right"></i>
-      </button>
     </div>
+
+    <!-- Floating Navigation Buttons -->
+    <button id="floatingPrevBtn" class="floating-nav-btn hidden" title="Previous page">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <button id="floatingNextBtn" class="floating-nav-btn hidden" title="Next page">
+      <i class="bi bi-chevron-right"></i>
+    </button>
 
     <div id="status">Select an EPUB file…</div>
   </div>
@@ -1344,6 +1359,13 @@
         showReader();
         document.getElementById('fileName').textContent = bookData.title;
 
+        // Ensure scroll mode is always disabled when opening a book
+        scrollMode = false;
+        const scrollModeBtn = document.getElementById('scrollModeBtn');
+        if (scrollModeBtn) {
+          scrollModeBtn.classList.remove('active');
+        }
+
         // Initialize EPUB with the stored ArrayBuffer
         book = ePub(bookData.data);
         await book.ready;
@@ -1355,6 +1377,24 @@
 
         // Enable controls
         document.getElementById('extractChapterBtn').disabled = false;
+        
+        console.log('Book opened - scrollMode:', scrollMode, 'sidebarVisible:', sidebarVisible);
+        
+        // Update button visibility based on current state
+        // Note: floatingPrevBtn and floatingNextBtn are already declared in DOMContentLoaded scope
+        const shouldShowButtons = !scrollMode && !sidebarVisible;
+        console.log('Should show buttons:', shouldShowButtons);
+        
+        if (shouldShowButtons) {
+          document.getElementById('floatingPrevBtn').classList.remove('hidden');
+          document.getElementById('floatingNextBtn').classList.remove('hidden');
+          console.log('Buttons shown');
+        } else {
+          document.getElementById('floatingPrevBtn').classList.add('hidden');
+          document.getElementById('floatingNextBtn').classList.add('hidden');
+          console.log('Buttons hidden - sidebar is visible or scroll mode is active');
+        }
+        
         setStatus('Book opened: ' + bookData.title);
 
       } catch (e) {
@@ -3122,7 +3162,22 @@
 
       rendition.hooks.content.register((contents) => {
         const style = contents.document.createElement('style');
-        style.textContent = `img { max-width: 100% !important; height: auto !important; }`;
+        
+        // Calculate padding: 40px white margin always present
+        // When buttons are visible, add their width (25px) to the padding
+        const buttonsVisible = !scrollMode && !sidebarVisible;
+        const basePadding = 40; // White margin
+        const buttonWidth = buttonsVisible ? 25 : 0;
+        const totalPadding = basePadding + buttonWidth;
+        
+        style.textContent = `
+          img { max-width: 100% !important; height: auto !important; }
+          body { 
+            padding-left: ${totalPadding}px !important; 
+            padding-right: ${totalPadding}px !important;
+            box-sizing: border-box !important;
+          }
+        `;
         contents.document.head.appendChild(style);
         setTimeout(applyTheme, 50);
       });
@@ -3169,6 +3224,7 @@
 
       const createList = (items, level) => {
         const ul = document.createElement('ul');
+        ul.setAttribute('translate', 'yes');
         if (level === 1) {
           ul.className = '';
         } else if (level === 2) {
@@ -3185,6 +3241,7 @@
 
           li.textContent = item.label;
           li.className = hasSub ? 'expandable' : 'leaf';
+          li.setAttribute('translate', 'yes');
 
           li.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -3218,8 +3275,8 @@
     window.addEventListener('DOMContentLoaded', () => {
       // Init elements
       const libraryInput = document.getElementById('libraryInput');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
+      const floatingPrevBtn = document.getElementById('floatingPrevBtn');
+      const floatingNextBtn = document.getElementById('floatingNextBtn');
       const dualPageBtn = document.getElementById('dualPageBtn');
       const scrollModeBtn = document.getElementById('scrollModeBtn');
       const themeBtn = document.getElementById('themeBtn');
@@ -3369,15 +3426,16 @@
         }
       };
 
-      prevBtn.onclick = () => rendition && rendition.prev();
-      nextBtn.onclick = () => rendition && rendition.next();
+      floatingPrevBtn.onclick = () => rendition && rendition.prev();
+      floatingNextBtn.onclick = () => rendition && rendition.next();
 
       scrollModeBtn.onclick = async () => {
         scrollMode = !scrollMode;
         scrollModeBtn.classList.toggle('active', scrollMode);
 
-        prevBtn.disabled = scrollMode;
-        nextBtn.disabled = scrollMode;
+        // Hide/show floating buttons based on scroll mode
+        floatingPrevBtn.classList.toggle('hidden', scrollMode);
+        floatingNextBtn.classList.toggle('hidden', scrollMode);
 
         if (scrollMode && dualPageMode) {
           dualPageMode = false;
@@ -3390,41 +3448,31 @@
           setStatus(scrollMode ? 'Scroll mode enabled' : 'Page mode enabled');
         }
       };
-
-      // Function to handle rendition resize after layout changes
-      function handleRenditionResize() {
-        if (!rendition) return;
-        
-        const viewer = document.getElementById('viewer');
-        if (!viewer) return;
-        
-        // Force a reflow to ensure dimensions are updated
-        void viewer.offsetWidth;
-        
-        // Get the actual viewer dimensions
-        const width = viewer.clientWidth;
-        const height = viewer.clientHeight;
-        
-        // Resize rendition with explicit dimensions
-        rendition.resize(width, height);
-      }
-
-      // Function to handle window resize
-      function handleResize() {
-        handleRenditionResize();
-      }
-
-      toggleSidebarBtn.onclick = () => {
+      toggleSidebarBtn.onclick = async () => {
         sidebarVisible = !sidebarVisible;
         bookmarks.classList.toggle('hidden', !sidebarVisible);
 
-        // Resize rendition after layout change
+        console.log('Sidebar toggled - sidebarVisible:', sidebarVisible, 'scrollMode:', scrollMode);
+
+        // Hide/show floating buttons when sidebar is toggled
+        if (!scrollMode) {
+          floatingPrevBtn.classList.toggle('hidden', sidebarVisible);
+          floatingNextBtn.classList.toggle('hidden', sidebarVisible);
+          console.log('Floating buttons updated - hidden:', sidebarVisible);
+          
+          // Recreate rendition to update padding
+          if (rendition && book) {
+            await recreateRendition();
+          }
+        }
+
         if (rendition) {
-          // Use requestAnimationFrame to ensure resize happens after DOM update
+          // Use requestAnimationFrame to ensure resize happens in the next frame
+          // to avoid ResizeObserver loop errors
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              handleRenditionResize();
-            });
+            setTimeout(() => {
+              if (rendition) rendition.resize();
+            }, 50);
           });
         }
 
@@ -3490,12 +3538,6 @@
       extractChapterBtn.onclick = async () => {
         await extractCurrentChapter();
       };
-
-      // Add window resize listener
-      window.addEventListener('resize', handleResize);
-
-      // Initial resize after book is loaded
-      // This is handled in openBookFromLibrary via recreateRendition
     });
   </script>
 </body>

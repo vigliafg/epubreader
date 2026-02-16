@@ -387,44 +387,8 @@
     }
 
     .btn-icon.btn-nav {
-      min-width: 20px;
-      padding: 8px 6px;
-      height: 88px;
-    }
-
-    /* Navigation buttons anchored to container */
-    .floating-nav-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 100;
-      opacity: 0.8;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .floating-nav-btn:hover {
-      opacity: 1;
-      transform: translateY(-50%) scale(1.05);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .floating-nav-btn:active {
-      transform: translateY(-50%) scale(0.95);
-    }
-
-    /* Position prev button - account for sidebar when visible */
-    #prevBtn {
-      left: 10px;
-    }
-
-    #bookmarks:not(.hidden) ~ #prevBtn {
-      left: 270px; /* sidebar width (260px) + margin */
-    }
-
-    /* Position next button on the right side */
-    #nextBtn {
-      right: 10px;
+      min-width: 64px;
+      padding: 5px 16px;
     }
 
     .btn.active {
@@ -581,16 +545,31 @@
       flex: 1;
       display: flex;
       min-height: 0;
-      position: relative;
+      width: 100%;
     }
 
     #bookmarks {
-      width: 260px;
+      position: fixed;
+      left: 0;
+      top: 60px;
+      bottom: 0;
+      width: 280px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
       border-right: 1px solid #ddd;
+      padding: 12px;
       overflow-y: auto;
-      font-size: 14px;
+      font-size: 12px;
       flex-shrink: 0;
-      background: white;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      z-index: 100;
+      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    #bookmarks.hidden {
+      transform: translateX(-100%);
+      opacity: 0;
+      pointer-events: none;
     }
 
     #bookmarks ul {
@@ -602,14 +581,13 @@
     #bookmarks li {
       padding: 8px 10px;
       cursor: pointer;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
       user-select: none;
       position: relative;
     }
 
     #bookmarks li.expandable {
       font-weight: 600;
-      background: #fafafa;
       padding-left: 10px;
     }
 
@@ -642,17 +620,21 @@
     }
 
     #bookmarks li:hover {
-      background: #f0f0f0;
+      background: rgba(0, 0, 0, 0.05);
     }
 
     #bookmarks li.leaf {
       padding-left: 26px;
       font-weight: normal;
-      background: transparent;
     }
 
-    #bookmarks.hidden {
-      display: none;
+    /* Current chapter indicator */
+    #bookmarks li.current-chapter {
+      background: linear-gradient(90deg, rgba(33, 150, 243, 0.2) 0%, transparent 100%);
+      border-left: 3px solid #2196f3;
+      font-weight: 600;
+      color: #1976d2;
+      position: relative;
     }
 
     #viewer {
@@ -666,6 +648,69 @@
       width: 100%;
       height: 100%;
       border: none;
+    }
+
+    /* Floating Navigation Buttons */
+    .floating-nav-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 25px;
+      height: 200px;
+      background: rgba(102, 126, 234, 0.9);
+      backdrop-filter: blur(10px);
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 90;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      opacity: 0.7;
+      border-radius: 0;
+    }
+
+    .floating-nav-btn:hover {
+      opacity: 1;
+      background: rgba(102, 126, 234, 1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .floating-nav-btn:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    #floatingPrevBtn {
+      left: 0;
+    }
+
+    #floatingNextBtn {
+      right: 0;
+    }
+
+    /* Hide floating buttons when they should be hidden */
+    .floating-nav-btn.hidden {
+      display: none !important;
+    }
+
+    /* Media queries for responsive sizing */
+    @media screen and (max-width: 768px) {
+      .floating-nav-btn {
+        width: 22px;
+        height: 180px;
+        font-size: 18px;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      .floating-nav-btn {
+        width: 20px;
+        height: 150px;
+        font-size: 16px;
+      }
     }
 
     #status {
@@ -696,12 +741,6 @@
         padding: 4px 7px;
         font-size: 11px;
         min-height: 26px;
-      }
-
-      .btn-icon.btn-nav {
-        min-width: 18px;
-        padding: 6px 5px;
-        height: 80px;
       }
 
       header strong {
@@ -744,12 +783,6 @@
       .btn-icon {
         padding: 3px 5px;
         min-width: 28px;
-      }
-
-      .btn-icon.btn-nav {
-        min-width: 16px;
-        padding: 4px 4px;
-        height: 72px;
       }
 
       #fontInfo {
@@ -798,12 +831,6 @@
 
       .library-title span {
         display: none;
-      }
-
-      .btn-icon.btn-nav {
-        min-width: 14px;
-        padding: 3px 3px;
-        height: 64px;
       }
     }
 
@@ -902,8 +929,28 @@
       color: #333;
     }
 
+    /* Color picker and range slider styles */
+    input[type="color"] {
+      width: 50px;
+      height: 30px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      margin: 0 10px;
+      max-width: 100px;
+    }
+
     /* Popup per pagina principale */
     #typographyPopupMain {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    #interfacePopupMain {
       left: 50%;
       transform: translateX(-50%);
     }
@@ -1003,18 +1050,19 @@
 
         <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.3); margin: 0 4px;"></div>
 
-        <!-- Navigation buttons moved to floating position -->
-
-        <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.3); margin: 0 4px;"></div>
-
         <div class="toolbar-group">
           <button class="btn btn-icon" id="scrollModeBtn" title="Scroll Mode">
             <i class="bi bi-arrow-down-up"></i>
           </button>
         </div>
 
+        <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.3); margin: 0 4px;"></div>
+
         <div class="toolbar-group">
           <button class="btn btn-icon" id="zoomBtn" title="Button Zoom: 100%">%</button>
+          <button class="btn btn-icon" id="interfaceBtn" title="Interface Settings">
+            <i class="bi bi-eye"></i>
+          </button>
         </div>
 
         <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.3); margin: 0 4px;"></div>
@@ -1072,38 +1120,6 @@
             </button>
           </div>
         </div>
-
-        <div class="typography-row">
-          <label>Left Margin</label>
-          <div class="typography-controls">
-            <button id="leftMarginMinus" title="Decrease">
-              <i class="bi bi-dash"></i>
-            </button>
-            <span class="typography-value" id="leftMarginInfo">4em</span>
-            <button id="leftMarginPlus" title="Increase">
-              <i class="bi bi-plus"></i>
-            </button>
-            <button id="leftMarginReset" class="reset-btn" title="Reset">
-              <i class="bi bi-arrow-counterclockwise"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="typography-row">
-          <label>Right Margin</label>
-          <div class="typography-controls">
-            <button id="rightMarginMinus" title="Decrease">
-              <i class="bi bi-dash"></i>
-            </button>
-            <span class="typography-value" id="rightMarginInfo">4em</span>
-            <button id="rightMarginPlus" title="Increase">
-              <i class="bi bi-plus"></i>
-            </button>
-            <button id="rightMarginReset" class="reset-btn" title="Reset">
-              <i class="bi bi-arrow-counterclockwise"></i>
-            </button>
-          </div>
-        </div>
       </div>
 
       <!-- Theme Picker Popup for Main Page -->
@@ -1111,23 +1127,68 @@
         <h3>Reading Themes</h3>
         <!-- Themes will be populated by JavaScript -->
       </div>
+
+      <!-- Interface Settings Popup -->
+      <div id="interfacePopupMain" class="typography-popup" style="display: none !important; visibility: hidden; opacity: 0;">
+        <h3>Interface Settings</h3>
+
+        <div class="typography-row">
+          <label>Toolbar Color</label>
+          <div class="typography-controls">
+            <input type="color" id="toolbarColorPicker" value="#667eea" />
+            <button id="toolbarColorReset" class="reset-btn" title="Reset">
+              <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="typography-row">
+          <label>Sidebar Color</label>
+          <div class="typography-controls">
+            <input type="color" id="sidebarColorPicker" value="#ffffff" />
+            <button id="sidebarColorReset" class="reset-btn" title="Reset">
+              <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="typography-row">
+          <label>Nav Buttons Color</label>
+          <div class="typography-controls">
+            <input type="color" id="navButtonsColorPicker" value="#667eea" />
+            <button id="navButtonsColorReset" class="reset-btn" title="Reset">
+              <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="typography-row">
+          <label>Nav Opacity</label>
+          <div class="typography-controls">
+            <input type="range" id="navOpacitySlider" min="0.1" max="1" step="0.1" value="0.7" />
+            <span class="typography-value" id="navOpacityValue">0.7</span>
+            <button id="navOpacityReset" class="reset-btn" title="Reset">
+              <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </header>
 
     <div id="container">
-      <nav id="bookmarks">
+      <nav id="bookmarks" class="hidden" translate="yes" lang="">
         <ul id="toc"></ul>
       </nav>
-      
       <div id="viewer"></div>
-      
-      <!-- Navigation buttons anchored to container -->
-      <button class="btn btn-icon btn-info btn-nav floating-nav-btn" id="prevBtn" title="Previous page">
-        <i class="bi bi-chevron-left"></i>
-      </button>
-      <button class="btn btn-icon btn-info btn-nav floating-nav-btn" id="nextBtn" title="Next page">
-        <i class="bi bi-chevron-right"></i>
-      </button>
     </div>
+
+    <!-- Floating Navigation Buttons -->
+    <button id="floatingPrevBtn" class="floating-nav-btn hidden" title="Previous page">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <button id="floatingNextBtn" class="floating-nav-btn hidden" title="Next page">
+      <i class="bi bi-chevron-right"></i>
+    </button>
 
     <div id="status">Select an EPUB file…</div>
   </div>
@@ -1307,6 +1368,204 @@
       readerView.classList.remove('hidden');
     }
 
+    // --- READING POSITION & SETTINGS MANAGEMENT ---
+    
+    let currentBookId = null;
+    let positionSaveTimer = null;
+    
+    // Save reading position for current book
+    async function saveReadingPosition() {
+      if (!currentBookId || !rendition) return;
+      
+      try {
+        const location = rendition.currentLocation();
+        if (!location || !location.start) return;
+        
+        const db = await openDB();
+        
+        // Properly wrap IndexedDB get operation
+        const bookData = await new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE_NAME, 'readonly');
+          const store = tx.objectStore(STORE_NAME);
+          const request = store.get(currentBookId);
+          
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+        
+        if (bookData) {
+          // Create a clean object with only serializable data
+          const updatedBook = {
+            id: bookData.id,
+            title: bookData.title,
+            author: bookData.author,
+            data: bookData.data,
+            cover: bookData.cover,
+            addedAt: bookData.addedAt,
+            lastPosition: {
+              cfi: location.start.cfi,
+              href: location.start.href,
+              timestamp: Date.now()
+            },
+            settings: bookData.settings || null
+          };
+          
+          // Save the updated book
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            const request = store.put(updatedBook);
+            
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+          });
+          
+          console.log('✓ Reading position saved');
+        }
+      } catch (e) {
+        console.error('Error saving reading position:', e);
+      }
+    }
+    
+    // Save typography and theme settings for current book
+    async function saveBookSettings() {
+      if (!currentBookId) {
+        console.warn('Cannot save settings: no currentBookId');
+        return;
+      }
+      
+      try {
+        const db = await openDB();
+        
+        // Properly wrap IndexedDB operation in a promise
+        const bookData = await new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE_NAME, 'readwrite');
+          const store = tx.objectStore(STORE_NAME);
+          const request = store.get(currentBookId);
+          
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+        
+        console.log('Retrieved bookData:', bookData);
+        console.log('bookData.id:', bookData?.id);
+        console.log('bookData.title:', bookData?.title);
+        
+        if (bookData) {
+          // Create a clean object with only serializable data
+          const updatedBook = {
+            id: bookData.id,
+            title: bookData.title,
+            author: bookData.author,
+            data: bookData.data,
+            cover: bookData.cover,
+            addedAt: bookData.addedAt,
+            lastPosition: bookData.lastPosition || null,
+            settings: {
+              fontSize: fontSize,
+              lineHeight: lineHeight,
+              theme: currentTheme,
+              interface: interfaceSettings,
+              timestamp: Date.now()
+            }
+          };
+          
+          console.log('Attempting to save updatedBook:', {
+            id: updatedBook.id,
+            title: updatedBook.title,
+            hasSettings: !!updatedBook.settings
+          });
+          
+          // Save the updated book
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            const request = store.put(updatedBook);
+            
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+          });
+          
+          console.log('✓ Book settings saved for book ID:', currentBookId);
+          console.log('  - fontSize:', fontSize);
+          console.log('  - lineHeight:', lineHeight);
+          console.log('  - theme:', currentTheme);
+        } else {
+          console.warn('Book not found in DB:', currentBookId);
+        }
+      } catch (e) {
+        console.error('Error saving book settings:', e);
+      }
+    }
+    
+    // Load reading position and settings for a book
+    async function loadBookPositionAndSettings(bookId) {
+      console.log('Loading position and settings for book ID:', bookId);
+      try {
+        const db = await openDB();
+        
+        // Properly wrap IndexedDB get operation
+        const book = await new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE_NAME, 'readonly');
+          const store = tx.objectStore(STORE_NAME);
+          const request = store.get(bookId);
+          
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+        
+        if (book) {
+          console.log('Book found in DB:', book.title);
+          
+          // Load settings if available
+          if (book.settings) {
+            fontSize = book.settings.fontSize || 100;
+            lineHeight = book.settings.lineHeight || 1.2;
+            currentTheme = book.settings.theme || 'normal';
+            
+            // Load interface settings
+            if (book.settings.interface) {
+              interfaceSettings = { ...defaultInterfaceSettings, ...book.settings.interface };
+            } else {
+              interfaceSettings = { ...defaultInterfaceSettings };
+            }
+            
+            console.log('✓ Settings loaded from DB:');
+            console.log('  - fontSize:', fontSize);
+            console.log('  - lineHeight:', lineHeight);
+            console.log('  - theme:', currentTheme);
+            console.log('  - interface:', interfaceSettings);
+          } else {
+            console.log('No saved settings found, using defaults');
+            interfaceSettings = { ...defaultInterfaceSettings };
+          }
+          
+          // Return position if available
+          if (book.lastPosition) {
+            console.log('✓ Position found:', book.lastPosition.cfi);
+          } else {
+            console.log('No saved position found');
+          }
+          return book.lastPosition || null;
+        }
+        console.warn('Book not found in DB');
+        return null;
+      } catch (e) {
+        console.error('Error loading book position/settings:', e);
+        return null;
+      }
+    }
+    
+    // Schedule position save (debounced to save every 5 seconds after page change)
+    function schedulePositionSave() {
+      if (positionSaveTimer) {
+        clearTimeout(positionSaveTimer);
+      }
+      positionSaveTimer = setTimeout(() => {
+        saveReadingPosition();
+      }, 5000); // Save 5 seconds after last page turn
+    }
+
     async function loadLibraryBooks() {
       bookGrid.innerHTML = '';
       try {
@@ -1376,17 +1635,77 @@
         showReader();
         document.getElementById('fileName').textContent = bookData.title;
 
+        // Set current book ID for position/settings tracking
+        currentBookId = bookData.id;
+
+        // Load saved settings and position for this book BEFORE creating rendition
+        const savedPosition = await loadBookPositionAndSettings(currentBookId);
+        
+        // Log loaded settings for debugging
+        console.log('Settings after load - fontSize:', fontSize, 'lineHeight:', lineHeight, 'theme:', currentTheme);
+
+        // Ensure scroll mode is always disabled when opening a book
+        scrollMode = false;
+        const scrollModeBtn = document.getElementById('scrollModeBtn');
+        if (scrollModeBtn) {
+          scrollModeBtn.classList.remove('active');
+        }
+
         // Initialize EPUB with the stored ArrayBuffer
         book = ePub(bookData.data);
         await book.ready;
 
+        // Update UI BEFORE creating rendition so values are correct
+        updateFontInfo();
+        updateLineHeightInfo();
+
         await recreateRendition();
 
         const nav = await book.loaded.navigation;
+
+        // Restore saved position if available BEFORE rendering TOC
+        if (savedPosition && savedPosition.cfi) {
+          try {
+            await rendition.display(savedPosition.cfi);
+            console.log('Restored reading position:', savedPosition.cfi);
+          } catch (e) {
+            console.warn('Could not restore position, starting from beginning:', e);
+            await rendition.display();
+          }
+        } else {
+          await rendition.display();
+        }
+
+        // Render TOC AFTER position is restored so current chapter is correct
         renderBookmarksSimple(nav.toc);
+
+        // Apply theme one more time to ensure it's correct
+        applyTheme();
+        
+        // Apply interface settings
+        applyInterfaceSettings();
+        
+        console.log('Theme applied:', currentTheme);
 
         // Enable controls
         document.getElementById('extractChapterBtn').disabled = false;
+        
+        console.log('Book opened - scrollMode:', scrollMode, 'sidebarVisible:', sidebarVisible);
+        
+        // Update button visibility based on current state
+        const shouldShowButtons = !scrollMode && !sidebarVisible;
+        console.log('Should show buttons:', shouldShowButtons);
+        
+        if (shouldShowButtons) {
+          document.getElementById('floatingPrevBtn').classList.remove('hidden');
+          document.getElementById('floatingNextBtn').classList.remove('hidden');
+          console.log('Buttons shown');
+        } else {
+          document.getElementById('floatingPrevBtn').classList.add('hidden');
+          document.getElementById('floatingNextBtn').classList.add('hidden');
+          console.log('Buttons hidden - sidebar is visible or scroll mode is active');
+        }
+        
         setStatus('Book opened: ' + bookData.title);
 
       } catch (e) {
@@ -1407,15 +1726,25 @@
     let lineHeights = [1, 1.2, 1.4, 1.6, 1.8, 2.0];
     let scrollMode = false;
     let dualPageMode = false;
-    let sidebarVisible = true;
+    let sidebarVisible = false;
     let currentTheme = 'normal';
     let currentLocation = null;
     let buttonZoom = 100; // Button zoom level: 100%, 200%, 300%
-    let leftMargin = 4; // Left margin in em
-    let rightMargin = 4; // Right margin in em
-    const MARGIN_STEP = 0.5; // Margin adjustment step in em
-    const MARGIN_MIN = 0;
-    const MARGIN_MAX = 20;
+
+    // Interface customization settings
+    let interfaceSettings = {
+      toolbarColor: '#667eea',
+      sidebarColor: '#ffffff',
+      navButtonsColor: '#667eea',
+      navOpacity: 0.7
+    };
+
+    const defaultInterfaceSettings = {
+      toolbarColor: '#667eea',
+      sidebarColor: '#ffffff',
+      navButtonsColor: '#667eea',
+      navOpacity: 0.7
+    };
 
     function setStatus(msg) {
       document.getElementById('status').textContent = msg;
@@ -1427,6 +1756,48 @@
 
     function updateLineHeightInfo() {
       document.getElementById('lineHeightInfo').textContent = lineHeight;
+    }
+
+    // Apply interface settings to UI
+    function applyInterfaceSettings() {
+      // Apply toolbar color
+      const header = document.querySelector('header');
+      if (header) {
+        header.style.background = `linear-gradient(135deg, ${interfaceSettings.toolbarColor} 0%, ${adjustColor(interfaceSettings.toolbarColor, -20)} 100%)`;
+      }
+
+      // Apply sidebar color
+      const bookmarks = document.getElementById('bookmarks');
+      if (bookmarks) {
+        bookmarks.style.background = `${hexToRgba(interfaceSettings.sidebarColor, 0.98)}`;
+      }
+
+      // Apply nav buttons color and opacity
+      const navButtons = document.querySelectorAll('.floating-nav-btn');
+      navButtons.forEach(btn => {
+        btn.style.background = hexToRgba(interfaceSettings.navButtonsColor, interfaceSettings.navOpacity);
+      });
+    }
+
+    // Helper: Convert hex to rgba
+    function hexToRgba(hex, alpha) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // Helper: Adjust color brightness
+    function adjustColor(hex, percent) {
+      const num = parseInt(hex.slice(1), 16);
+      const amt = Math.round(2.55 * percent);
+      const R = (num >> 16) + amt;
+      const G = (num >> 8 & 0x00FF) + amt;
+      const B = (num & 0x0000FF) + amt;
+      return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+        (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+        (B < 255 ? B < 1 ? 0 : B : 255))
+        .toString(16).slice(1);
     }
 
     async function navigateToHref(href) {
@@ -2382,38 +2753,6 @@
         </button>
       </div>
     </div>
-
-    <div class="typography-row">
-      <label>Left Margin</label>
-      <div class="typography-controls">
-        <button id="leftMarginMinus" title="Decrease">
-          <i class="bi bi-dash"></i>
-        </button>
-        <span class="typography-value" id="leftMarginInfo">4em</span>
-        <button id="leftMarginPlus" title="Increase">
-          <i class="bi bi-plus"></i>
-        </button>
-        <button id="leftMarginReset" class="reset-btn" title="Reset">
-          <i class="bi bi-arrow-counterclockwise"></i>
-        </button>
-      </div>
-    </div>
-
-    <div class="typography-row">
-      <label>Right Margin</label>
-      <div class="typography-controls">
-        <button id="rightMarginMinus" title="Decrease">
-          <i class="bi bi-dash"></i>
-        </button>
-        <span class="typography-value" id="rightMarginInfo">4em</span>
-        <button id="rightMarginPlus" title="Increase">
-          <i class="bi bi-plus"></i>
-        </button>
-        <button id="rightMarginReset" class="reset-btn" title="Reset">
-          <i class="bi bi-arrow-counterclockwise"></i>
-        </button>
-      </div>
-    </div>
   </div>
   
   <div class="toast-notification" id="toast"></div>
@@ -2442,17 +2781,10 @@
       var lineHeight = 1.6;
       var lineHeights = [1, 1.2, 1.4, 1.6, 1.8, 2.0];
       var buttonZoom = 100; // Button zoom level: 100%, 120%, 130%
-      var leftMargin = 4; // Left margin in em
-      var rightMargin = 4; // Right margin in em
-      var MARGIN_STEP = 0.5; // Margin adjustment step in em
-      var MARGIN_MIN = 0;
-      var MARGIN_MAX = 20;
       
       var content = document.querySelector('.chapter-content');
       var fontInfo = document.getElementById('fontInfo');
       var lineHeightInfo = document.getElementById('lineHeightInfo');
-      var leftMarginInfo = document.getElementById('leftMarginInfo');
-      var rightMarginInfo = document.getElementById('rightMarginInfo');
       var toolbar = document.querySelector('.chapter-toolbar');
       var typographyPopup = document.getElementById('typographyPopupExtracted');
       var typographyBtn = document.getElementById('typographyBtnExtracted');
@@ -2523,12 +2855,8 @@
       function applyStyles() {
         content.style.fontSize = fontSize + '%';
         content.style.lineHeight = lineHeight;
-        content.style.paddingLeft = leftMargin + 'em';
-        content.style.paddingRight = rightMargin + 'em';
         fontInfo.textContent = fontSize + '%';
         lineHeightInfo.textContent = lineHeight;
-        if (leftMarginInfo) leftMarginInfo.textContent = leftMargin + 'em';
-        if (rightMarginInfo) rightMarginInfo.textContent = rightMargin + 'em';
         
         var elements = content.querySelectorAll('p, div, span, li, h1, h2, h3, h4, h5, h6');
         for (var i = 0; i < elements.length; i++) {
@@ -2600,38 +2928,6 @@
 
       document.getElementById('lineHeightReset').onclick = function() {
         lineHeight = 1.6;
-        applyStyles();
-      };
-
-      // Left Margin Controls
-      document.getElementById('leftMarginPlus').onclick = function() {
-        leftMargin = Math.min(MARGIN_MAX, leftMargin + MARGIN_STEP);
-        applyStyles();
-      };
-
-      document.getElementById('leftMarginMinus').onclick = function() {
-        leftMargin = Math.max(MARGIN_MIN, leftMargin - MARGIN_STEP);
-        applyStyles();
-      };
-
-      document.getElementById('leftMarginReset').onclick = function() {
-        leftMargin = 4;
-        applyStyles();
-      };
-
-      // Right Margin Controls
-      document.getElementById('rightMarginPlus').onclick = function() {
-        rightMargin = Math.min(MARGIN_MAX, rightMargin + MARGIN_STEP);
-        applyStyles();
-      };
-
-      document.getElementById('rightMarginMinus').onclick = function() {
-        rightMargin = Math.max(MARGIN_MIN, rightMargin - MARGIN_STEP);
-        applyStyles();
-      };
-
-      document.getElementById('rightMarginReset').onclick = function() {
-        rightMargin = 4;
         applyStyles();
       };
       
@@ -3126,22 +3422,15 @@
       if (!rendition) return;
 
       updateFontInfo();
-      updateMarginInfo();
 
       const active = THEME_COLORS[currentTheme] || THEME_COLORS.normal;
-
-      // Calculate margin proportional to 4 characters width
-      // Using em units: 4 characters ≈ 4em (assuming average char width)
-      const textMargin = '4em';
 
       rendition.themes.register('custom', {
         body: {
           'background': `${active.bg} !important`,
           'color': `${active.fg} !important`,
           'font-size': `${fontSize}% !important`,
-          'line-height': `${lineHeight} !important`,
-          'padding-left': `${leftMargin}em !important`,
-          'padding-right': `${rightMargin}em !important`
+          'line-height': `${lineHeight} !important`
         },
         'p, div, span, li, h1, h2, h3, h4, h5, h6': {
           'font-size': `${fontSize}% !important`,
@@ -3151,33 +3440,8 @@
       });
       rendition.themes.select('custom');
 
-      // Force immediate update by applying CSS directly to iframe
-      applyMarginsToIframe();
-
       // Update active swatch indicator in popup
       updateThemeSwatchActive();
-    }
-
-    // Apply margins directly to iframe for real-time update
-    function applyMarginsToIframe() {
-      if (!rendition) return;
-      
-      try {
-        const iframe = document.querySelector('#viewer iframe');
-        if (iframe && iframe.contentDocument && iframe.contentDocument.body) {
-          iframe.contentDocument.body.style.paddingLeft = `${leftMargin}em`;
-          iframe.contentDocument.body.style.paddingRight = `${rightMargin}em`;
-        }
-      } catch (e) {
-        // Ignore cross-origin errors
-      }
-    }
-
-    function updateMarginInfo() {
-      const leftMarginInfo = document.getElementById('leftMarginInfo');
-      const rightMarginInfo = document.getElementById('rightMarginInfo');
-      if (leftMarginInfo) leftMarginInfo.textContent = `${leftMargin}em`;
-      if (rightMarginInfo) rightMarginInfo.textContent = `${rightMargin}em`;
     }
 
     function updateThemeSwatchActive() {
@@ -3221,6 +3485,8 @@
             currentTheme = t.key;
             applyTheme();
             setStatus(`Theme: ${t.label}`);
+            // Save settings when theme changes
+            saveBookSettings();
           };
           itemsDiv.appendChild(swatch);
         });
@@ -3264,9 +3530,30 @@
         navigateToHref(href);
       });
 
+      // Save reading position when location changes
+      rendition.on('relocated', (location) => {
+        schedulePositionSave();
+        updateCurrentChapterInTOC();
+      });
+
       rendition.hooks.content.register((contents) => {
         const style = contents.document.createElement('style');
-        style.textContent = `img { max-width: 100% !important; height: auto !important; }`;
+        
+        // Calculate padding: 40px white margin always present
+        // When buttons are visible, add their width (25px) to the padding
+        const buttonsVisible = !scrollMode && !sidebarVisible;
+        const basePadding = 40; // White margin
+        const buttonWidth = buttonsVisible ? 25 : 0;
+        const totalPadding = basePadding + buttonWidth;
+        
+        style.textContent = `
+          img { max-width: 100% !important; height: auto !important; }
+          body { 
+            padding-left: ${totalPadding}px !important; 
+            padding-right: ${totalPadding}px !important;
+            box-sizing: border-box !important;
+          }
+        `;
         contents.document.head.appendChild(style);
         setTimeout(applyTheme, 50);
       });
@@ -3311,8 +3598,60 @@
       const container = document.getElementById('toc');
       container.innerHTML = '';
 
+      // Get current location to find active chapter
+      let currentHref = null;
+      if (rendition) {
+        try {
+          const location = rendition.currentLocation();
+          if (location && location.start) {
+            currentHref = location.start.href;
+            console.log('Current location href:', currentHref);
+          }
+        } catch (e) {
+          console.warn('Could not get current location for TOC highlight:', e);
+        }
+      }
+
+      // Function to find if an item or its children contain the current href
+      const findCurrentPath = (items, path = []) => {
+        for (let item of items) {
+          const newPath = [...path, item];
+          
+          // Check if this item matches current href
+          if (item.href && currentHref) {
+            const itemHref = item.href.split('#')[0];
+            const currentHrefBase = currentHref.split('#')[0];
+            if (itemHref === currentHrefBase || item.href === currentHref) {
+              console.log('Found current chapter in path:', newPath.map(i => i.label));
+              return newPath;
+            }
+          }
+          
+          // Check children recursively
+          if (item.subitems && item.subitems.length > 0) {
+            const foundPath = findCurrentPath(item.subitems, newPath);
+            if (foundPath) return foundPath;
+          }
+        }
+        return null;
+      };
+
+      const currentPath = findCurrentPath(toc);
+      
+      // Create a Set of hrefs that are in the current path for quick lookup
+      const currentPathHrefs = new Set();
+      if (currentPath) {
+        currentPath.forEach(item => {
+          if (item.href) {
+            currentPathHrefs.add(item.href);
+          }
+        });
+        console.log('Current path hrefs:', Array.from(currentPathHrefs));
+      }
+
       const createList = (items, level) => {
         const ul = document.createElement('ul');
+        ul.setAttribute('translate', 'yes');
         if (level === 1) {
           ul.className = '';
         } else if (level === 2) {
@@ -3329,6 +3668,26 @@
 
           li.textContent = item.label;
           li.className = hasSub ? 'expandable' : 'leaf';
+          li.setAttribute('translate', 'yes');
+          
+          // Store href for comparison
+          li.dataset.href = item.href || '';
+
+          // Check if this item is in the current path
+          const isInCurrentPath = item.href && currentPathHrefs.has(item.href);
+          const isCurrentChapter = currentPath && currentPath[currentPath.length - 1]?.href === item.href;
+          
+          // Mark as current chapter (the leaf/final item)
+          if (isCurrentChapter) {
+            li.classList.add('current-chapter');
+            console.log('Marked as current chapter:', item.label);
+          }
+          
+          // Auto-expand if in current path AND has children
+          if (isInCurrentPath && hasSub) {
+            li.classList.add('open');
+            console.log('Opening item in path:', item.label);
+          }
 
           li.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -3350,6 +3709,13 @@
 
           if (hasSub) {
             const subUl = createList(item.subitems, level + 1);
+            
+            // IMPORTANT: Auto-open submenu if ANY child in this submenu is in current path
+            if (isInCurrentPath) {
+              subUl.classList.add('open');
+              console.log('Opening submenu for:', item.label);
+            }
+            
             ul.appendChild(subUl);
           }
         });
@@ -3357,13 +3723,45 @@
       };
 
       container.appendChild(createList(toc, 1));
+      console.log('TOC rendered with current chapter highlight');
+    }
+
+    // Function to update current chapter highlight when location changes
+    function updateCurrentChapterInTOC() {
+      if (!rendition) return;
+      
+      try {
+        const location = rendition.currentLocation();
+        if (!location || !location.start) return;
+        
+        const currentHref = location.start.href;
+        const currentHrefBase = currentHref.split('#')[0];
+        
+        // Remove previous current-chapter markers
+        document.querySelectorAll('#toc li.current-chapter').forEach(li => {
+          li.classList.remove('current-chapter');
+        });
+        
+        // Find and mark the new current chapter
+        document.querySelectorAll('#toc li').forEach(li => {
+          const liHref = li.dataset.href;
+          if (liHref) {
+            const liHrefBase = liHref.split('#')[0];
+            if (liHrefBase === currentHrefBase || liHref === currentHref) {
+              li.classList.add('current-chapter');
+            }
+          }
+        });
+      } catch (e) {
+        console.warn('Could not update current chapter highlight:', e);
+      }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
       // Init elements
       const libraryInput = document.getElementById('libraryInput');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
+      const floatingPrevBtn = document.getElementById('floatingPrevBtn');
+      const floatingNextBtn = document.getElementById('floatingNextBtn');
       const dualPageBtn = document.getElementById('dualPageBtn');
       const scrollModeBtn = document.getElementById('scrollModeBtn');
       const themeBtn = document.getElementById('themeBtn');
@@ -3442,6 +3840,8 @@
           typographyPopup.style.display = 'none';
           typographyPopup.style.visibility = 'hidden';
           typographyPopup.style.opacity = '0';
+          // Save settings when typography popup is closed
+          saveBookSettings();
         }
       });
 
@@ -3489,44 +3889,6 @@
         applyTheme();
       };
 
-      // Left Margin Controls
-      document.getElementById('leftMarginPlus').onclick = () => {
-        leftMargin = Math.min(MARGIN_MAX, leftMargin + MARGIN_STEP);
-        updateMarginInfo();
-        applyTheme();
-      };
-
-      document.getElementById('leftMarginMinus').onclick = () => {
-        leftMargin = Math.max(MARGIN_MIN, leftMargin - MARGIN_STEP);
-        updateMarginInfo();
-        applyTheme();
-      };
-
-      document.getElementById('leftMarginReset').onclick = () => {
-        leftMargin = 4;
-        updateMarginInfo();
-        applyTheme();
-      };
-
-      // Right Margin Controls
-      document.getElementById('rightMarginPlus').onclick = () => {
-        rightMargin = Math.min(MARGIN_MAX, rightMargin + MARGIN_STEP);
-        updateMarginInfo();
-        applyTheme();
-      };
-
-      document.getElementById('rightMarginMinus').onclick = () => {
-        rightMargin = Math.max(MARGIN_MIN, rightMargin - MARGIN_STEP);
-        updateMarginInfo();
-        applyTheme();
-      };
-
-      document.getElementById('rightMarginReset').onclick = () => {
-        rightMargin = 4;
-        updateMarginInfo();
-        applyTheme();
-      };
-
       // Single/Dual Page Controls
       document.getElementById('singlePageBtn').onclick = async () => {
         if (!scrollMode && dualPageMode) {
@@ -3551,15 +3913,16 @@
         }
       };
 
-      prevBtn.onclick = () => rendition && rendition.prev();
-      nextBtn.onclick = () => rendition && rendition.next();
+      floatingPrevBtn.onclick = () => rendition && rendition.prev();
+      floatingNextBtn.onclick = () => rendition && rendition.next();
 
       scrollModeBtn.onclick = async () => {
         scrollMode = !scrollMode;
         scrollModeBtn.classList.toggle('active', scrollMode);
 
-        prevBtn.disabled = scrollMode;
-        nextBtn.disabled = scrollMode;
+        // Hide/show floating buttons based on scroll mode
+        floatingPrevBtn.classList.toggle('hidden', scrollMode);
+        floatingNextBtn.classList.toggle('hidden', scrollMode);
 
         if (scrollMode && dualPageMode) {
           dualPageMode = false;
@@ -3572,41 +3935,36 @@
           setStatus(scrollMode ? 'Scroll mode enabled' : 'Page mode enabled');
         }
       };
-
-      // Function to handle rendition resize after layout changes
-      function handleRenditionResize() {
-        if (!rendition) return;
-        
-        const viewer = document.getElementById('viewer');
-        if (!viewer) return;
-        
-        // Force a reflow to ensure dimensions are updated
-        void viewer.offsetWidth;
-        
-        // Get the actual viewer dimensions
-        const width = viewer.clientWidth;
-        const height = viewer.clientHeight;
-        
-        // Resize rendition with explicit dimensions
-        rendition.resize(width, height);
-      }
-
-      // Function to handle window resize
-      function handleResize() {
-        handleRenditionResize();
-      }
-
-      toggleSidebarBtn.onclick = () => {
+      toggleSidebarBtn.onclick = async () => {
         sidebarVisible = !sidebarVisible;
         bookmarks.classList.toggle('hidden', !sidebarVisible);
 
-        // Resize rendition after layout change
+        console.log('Sidebar toggled - sidebarVisible:', sidebarVisible, 'scrollMode:', scrollMode);
+
+        // Hide/show floating buttons when sidebar is toggled
+        if (!scrollMode) {
+          floatingPrevBtn.classList.toggle('hidden', sidebarVisible);
+          floatingNextBtn.classList.toggle('hidden', sidebarVisible);
+          console.log('Floating buttons updated - hidden:', sidebarVisible);
+          
+          // Apply interface settings when buttons become visible
+          if (!sidebarVisible) {
+            setTimeout(() => applyInterfaceSettings(), 100);
+          }
+          
+          // Recreate rendition to update padding
+          if (rendition && book) {
+            await recreateRendition();
+          }
+        }
+
         if (rendition) {
-          // Use requestAnimationFrame to ensure resize happens after DOM update
+          // Use requestAnimationFrame to ensure resize happens in the next frame
+          // to avoid ResizeObserver loop errors
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              handleRenditionResize();
-            });
+            setTimeout(() => {
+              if (rendition) rendition.resize();
+            }, 50);
           });
         }
 
@@ -3648,6 +4006,8 @@
           themePopup.style.display = 'none';
           themePopup.style.visibility = 'hidden';
           themePopup.style.opacity = '0';
+          // Save settings when theme popup is closed
+          saveBookSettings();
         }
       });
 
@@ -3669,15 +4029,114 @@
         setStatus(`Button zoom: ${buttonZoom}%`);
       };
 
+      // Interface Settings Button and Popup
+      const interfaceBtn = document.getElementById('interfaceBtn');
+      const interfacePopup = document.getElementById('interfacePopupMain');
+
+      interfaceBtn.onclick = (e) => {
+        e.stopPropagation();
+        const isShowing = interfacePopup.classList.contains('show');
+
+        // Close other popups
+        typographyPopup.classList.remove('show');
+        typographyPopup.style.display = 'none';
+        typographyPopup.style.visibility = 'hidden';
+        typographyPopup.style.opacity = '0';
+
+        const themePopupEl = document.getElementById('themePopupMain');
+        if (themePopupEl) {
+          themePopupEl.classList.remove('show');
+          themePopupEl.style.display = 'none';
+          themePopupEl.style.visibility = 'hidden';
+          themePopupEl.style.opacity = '0';
+        }
+
+        if (isShowing) {
+          interfacePopup.classList.remove('show');
+          interfacePopup.style.display = 'none';
+          interfacePopup.style.visibility = 'hidden';
+          interfacePopup.style.opacity = '0';
+        } else {
+          interfacePopup.style.display = 'block';
+          interfacePopup.style.visibility = 'visible';
+          interfacePopup.style.opacity = '1';
+          interfacePopup.classList.add('show');
+          updateInterfaceControls();
+        }
+      };
+
+      // Close interface popup when clicking outside
+      document.addEventListener('click', (e) => {
+        if (interfacePopup && !interfacePopup.contains(e.target) && e.target !== interfaceBtn && !interfaceBtn.contains(e.target)) {
+          interfacePopup.classList.remove('show');
+          interfacePopup.style.display = 'none';
+          interfacePopup.style.visibility = 'hidden';
+          interfacePopup.style.opacity = '0';
+          saveBookSettings();
+        }
+      });
+
+      // Update interface controls with current values
+      function updateInterfaceControls() {
+        document.getElementById('toolbarColorPicker').value = interfaceSettings.toolbarColor;
+        document.getElementById('sidebarColorPicker').value = interfaceSettings.sidebarColor;
+        document.getElementById('navButtonsColorPicker').value = interfaceSettings.navButtonsColor;
+        document.getElementById('navOpacitySlider').value = interfaceSettings.navOpacity;
+        document.getElementById('navOpacityValue').textContent = interfaceSettings.navOpacity;
+      }
+
+      // Toolbar Color
+      document.getElementById('toolbarColorPicker').addEventListener('input', (e) => {
+        interfaceSettings.toolbarColor = e.target.value;
+        applyInterfaceSettings();
+      });
+
+      document.getElementById('toolbarColorReset').onclick = () => {
+        interfaceSettings.toolbarColor = defaultInterfaceSettings.toolbarColor;
+        updateInterfaceControls();
+        applyInterfaceSettings();
+      };
+
+      // Sidebar Color
+      document.getElementById('sidebarColorPicker').addEventListener('input', (e) => {
+        interfaceSettings.sidebarColor = e.target.value;
+        applyInterfaceSettings();
+      });
+
+      document.getElementById('sidebarColorReset').onclick = () => {
+        interfaceSettings.sidebarColor = defaultInterfaceSettings.sidebarColor;
+        updateInterfaceControls();
+        applyInterfaceSettings();
+      };
+
+      // Nav Buttons Color
+      document.getElementById('navButtonsColorPicker').addEventListener('input', (e) => {
+        interfaceSettings.navButtonsColor = e.target.value;
+        applyInterfaceSettings();
+      });
+
+      document.getElementById('navButtonsColorReset').onclick = () => {
+        interfaceSettings.navButtonsColor = defaultInterfaceSettings.navButtonsColor;
+        updateInterfaceControls();
+        applyInterfaceSettings();
+      };
+
+      // Nav Opacity
+      document.getElementById('navOpacitySlider').addEventListener('input', (e) => {
+        interfaceSettings.navOpacity = parseFloat(e.target.value);
+        document.getElementById('navOpacityValue').textContent = interfaceSettings.navOpacity;
+        applyInterfaceSettings();
+      });
+
+      document.getElementById('navOpacityReset').onclick = () => {
+        interfaceSettings.navOpacity = defaultInterfaceSettings.navOpacity;
+        updateInterfaceControls();
+        applyInterfaceSettings();
+      };
+
       extractChapterBtn.onclick = async () => {
         await extractCurrentChapter();
       };
-
-      // Add window resize listener
-      window.addEventListener('resize', handleResize);
-
-      // Initial resize after book is loaded
-      // This is handled in openBookFromLibrary via recreateRendition
     });
   </script>
 </body>
