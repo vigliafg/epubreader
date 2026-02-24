@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPUB Library & Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0b;
+    --paper: #f7f4ee;
+    --cream: #ede8dc;
+    --accent: #c8410a;
+    --accent2: #1a4a8a;
+    --gold: #c4922a;
+    --mid: #7a7060;
+    --border: rgba(15,14,11,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -8vw;
+    top: 8vh;
+    width: 55vw;
+    height: 85vh;
+    background: var(--cream);
+    border-radius: 2px;
+    z-index: 0;
+    transform: rotate(2deg);
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 4vw;
+    position: relative;
+    z-index: 10;
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+  }
+
+  .nav-logo:hover { color: var(--ink); }
+
+  .nav-logo span {
+    width: 28px;
+    height: 28px;
+    background: var(--ink);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--paper);
+    font-size: 14px;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .nav-link {
+    padding: 0.5rem 0.8rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: var(--ink);
+    background: var(--cream);
+  }
+
+  .nav-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+  }
+
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: center;
+    padding: 0 4vw;
+    position: relative;
+    z-index: 5;
+  }
+
+  .hero-text {
+    padding-right: 4vw;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(3rem, 5.5vw, 6rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 2rem;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--mid);
+    max-width: 440px;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+
+  .hero-cta {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.9rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    font-size: 0.85rem;
+    color: var(--mid);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-secondary:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+
+  /* ── HERO SCREENSHOT ── */
+  .hero-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 2vw;
+  }
+
+  .screenshot-frame {
+    width: 100%;
+    max-width: 560px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(15,14,11,0.18), 0 8px 20px rgba(15,14,11,0.1);
+    position: relative;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .screenshot-frame img {
+    width: 100%;
+    display: block;
+  }
+
+  .screenshot-badge {
+    position: absolute;
+    bottom: -14px;
+    left: -20px;
+    background: var(--accent);
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.5rem 1rem;
+    border-radius: 2px;
+    box-shadow: 0 4px 16px rgba(200,65,10,0.3);
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 1.5rem 4vw;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 5;
+  }
+
+  .stat {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0 2.5rem;
+    border-right: 1px solid var(--border);
+  }
+
+  .stat:first-child { padding-left: 0; }
+  .stat:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--mid);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── SECTION GENERIC ── */
+  section {
+    padding: 6rem 4vw;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  h2 em { font-style: italic; color: var(--accent); }
+
+  /* ── FEATURE BENTO GRID ── */
+  .bento {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 4vw;
+  }
+
+  .bento .section-label { color: rgba(247,244,238,0.45); }
+  .bento h2 { color: var(--paper); margin-bottom: 3rem; }
+
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: auto auto;
+    gap: 1.5px;
+  }
+
+  .bento-card {
+    background: rgba(247,244,238,0.04);
+    border: 1px solid rgba(247,244,238,0.08);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .bento-card:hover {
+    background: rgba(247,244,238,0.07);
+  }
+
+  .bento-card:nth-child(1) { grid-column: span 5; }
+  .bento-card:nth-child(2) { grid-column: span 7; }
+  .bento-card:nth-child(3) { grid-column: span 4; }
+  .bento-card:nth-child(4) { grid-column: span 4; }
+  .bento-card:nth-child(5) { grid-column: span 4; }
+
+  .bento-icon {
+    font-size: 2rem;
+    margin-bottom: 1.2rem;
+    display: block;
+  }
+
+  .bento-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+    color: var(--paper);
+  }
+
+  .bento-card p {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: rgba(247,244,238,0.55);
+    font-weight: 300;
+  }
+
+  .bento-card .bento-tag {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(247,244,238,0.3);
+    border: 1px solid rgba(247,244,238,0.12);
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+  }
+
+  .bento-accent {
+    background: var(--accent) !important;
+    border-color: transparent !important;
+  }
+
+  .bento-accent h3, .bento-accent p { color: white !important; }
+  .bento-accent p { opacity: 0.85; }
+
+  /* ── SCREENSHOTS SHOWCASE ── */
+  .showcase {
+    background: var(--cream);
+  }
+
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+
+  .showcase-item {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(15,14,11,0.12);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: default;
+  }
+
+  .showcase-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 50px rgba(15,14,11,0.18);
+  }
+
+  .showcase-item img {
+    width: 100%;
+    display: block;
+  }
+
+  .showcase-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem 1.2rem;
+    background: linear-gradient(transparent, rgba(15,14,11,0.7));
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .showcase-item:hover .showcase-caption {
+    opacity: 1;
+  }
+
+  .showcase-item-large {
+    grid-column: span 2;
+  }
+
+  /* ── MODES SECTION ── */
+  .modes {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 5vw;
+    align-items: start;
+    padding: 6rem 4vw;
+  }
+
+  .modes-nav {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .mode-tab {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .mode-tab:last-of-type { border-bottom: none; }
+
+  .mode-tab-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--cream);
+    transition: color 0.2s;
+    line-height: 1;
+    min-width: 2rem;
+  }
+
+  .mode-tab.active .mode-tab-num,
+  .mode-tab:hover .mode-tab-num {
+    color: var(--accent);
+  }
+
+  .mode-tab-info h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    transition: color 0.2s;
+  }
+
+  .mode-tab.active h4 { color: var(--accent); }
+
+  .mode-tab-info p {
+    font-size: 0.8rem;
+    color: var(--mid);
+    line-height: 1.5;
+  }
+
+  .modes-content {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .mode-panel {
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(15,14,11,0.1);
+  }
+
+  .mode-panel img {
+    width: 100%;
+    display: block;
+  }
+
+  .mode-panel-desc {
+    background: white;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-top: none;
+  }
+
+  .mode-panel-desc h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .mode-panel-desc p {
+    font-size: 0.85rem;
+    color: var(--mid);
+    line-height: 1.65;
+  }
+
+  /* ── TOOLBAR DETAIL ── */
+  .toolbar-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 4vw;
+  }
+
+  .toolbar-section .section-label { color: rgba(247,244,238,0.4); }
+  .toolbar-section h2 { color: var(--paper); }
+
+  .toolbar-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid rgba(247,244,238,0.12);
+    margin-bottom: 3rem;
+    margin-top: 2.5rem;
+  }
+
+  .toolbar-tab {
+    padding: 0.8rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(247,244,238,0.4);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    user-select: none;
+  }
+
+  .toolbar-tab.active {
+    color: var(--paper);
+    border-bottom-color: var(--accent);
+  }
+
+  .toolbar-tab:hover:not(.active) {
+    color: rgba(247,244,238,0.7);
+  }
+
+  .toolbar-content { display: none; }
+  .toolbar-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+
+  .toolbar-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .tb-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid rgba(247,244,238,0.07);
+  }
+
+  .tb-row:last-child { border-bottom: none; }
+
+  .tb-icon-box {
+    width: 36px;
+    height: 36px;
+    background: rgba(247,244,238,0.07);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    border: 1px solid rgba(247,244,238,0.1);
+    color: rgba(247,244,238,0.85);
+  }
+
+  .tb-icon-box svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+  }
+
+  .tb-text h5 {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--paper);
+    margin-bottom: 0.1rem;
+  }
+
+  .tb-text p {
+    font-size: 0.75rem;
+    color: rgba(247,244,238,0.45);
+    line-height: 1.4;
+  }
+
+  .tb-text { flex: 1; }
+
+  .toolbar-screenshot {
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    position: sticky;
+    top: 2rem;
+  }
+
+  .toolbar-screenshot img {
+    width: 100%;
+    display: block;
+  }
+
+  /* ── THEMES SHOWCASE ── */
+  .themes-section {
+    padding: 6rem 4vw;
+    background: var(--paper);
+  }
+
+  .themes-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 2.5rem;
+  }
+
+  .theme-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    transition: transform 0.2s;
+    cursor: default;
+  }
+
+  .theme-pill:hover { transform: scale(1.04); }
+
+  .theme-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+    flex-shrink: 0;
+  }
+
+  .themes-preview {
+    margin-top: 2.5rem;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(15,14,11,0.12);
+    max-width: 760px;
+  }
+
+  .themes-preview img {
+    width: 100%;
+    display: block;
+  }
+
+  /* ── PRIVACY / TECH ── */
+  .tech-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background: var(--cream);
+  }
+
+  .tech-half {
+    padding: 5rem 4vw;
+  }
+
+  .tech-half:first-child {
+    border-right: 1px solid var(--border);
+  }
+
+  .tech-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 2rem;
+  }
+
+  .tech-list li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+
+  .tech-list li:last-child { border-bottom: none; }
+
+  .tech-list .check {
+    width: 22px;
+    height: 22px;
+    background: var(--ink);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--paper);
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .lib-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 2rem;
+  }
+
+  .lib-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    background: white;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+
+  .lib-name { font-weight: 500; }
+  .lib-role { color: var(--mid); font-size: 0.78rem; }
+
+  .lib-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    background: var(--cream);
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    color: var(--mid);
+  }
+
+  /* ── USE CASES ── */
+  .usecases {
+    padding: 6rem 4vw;
+  }
+
+  .usecases-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .usecase-card {
+    border: 1px solid var(--border);
+    padding: 1.8rem;
+    border-radius: 3px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    background: white;
+  }
+
+  .usecase-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+
+  .usecase-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(15,14,11,0.08); }
+  .usecase-card:hover::before { background: var(--accent); }
+
+  .usecase-emoji {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .usecase-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .usecase-card p {
+    font-size: 0.82rem;
+    color: var(--mid);
+    line-height: 1.6;
+  }
+
+  /* ── CTA FINAL ── */
+  .cta-final {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 7rem 4vw;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-final::before {
+    content: '📚';
+    position: absolute;
+    font-size: 30vw;
+    opacity: 0.03;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .cta-final h2 {
+    color: var(--paper);
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    max-width: 700px;
+    margin: 0 auto 1.5rem;
+  }
+
+  .cta-final p {
+    font-size: 1rem;
+    color: rgba(247,244,238,0.55);
+    max-width: 500px;
+    margin: 0 auto 2.5rem;
+    font-weight: 300;
+  }
+
+  .cta-final .btn-primary {
+    background: var(--accent);
+    font-size: 1rem;
+    padding: 1rem 2.5rem;
+  }
+
+  .cta-final .btn-primary:hover {
+    background: #e04d0e;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #07070a;
+    color: rgba(247,244,238,0.35);
+    padding: 2rem 4vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .footer-links a {
+    color: rgba(247,244,238,0.5);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover {
+    color: var(--paper);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-up {
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  .delay-4 { animation-delay: 0.4s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .hero-content { grid-template-columns: 1fr; gap: 3rem; }
+    .hero::after { display: none; }
+    .hero-text { padding-right: 0; }
+    .screenshot-frame { max-width: 100%; }
+    .bento-card:nth-child(n) { grid-column: span 12; }
+    .showcase-grid { grid-template-columns: 1fr; }
+    .showcase-item-large { grid-column: span 1; }
+    .modes { grid-template-columns: 1fr; }
+    .modes-nav { position: static; }
+    .toolbar-content.active { grid-template-columns: 1fr; }
+    .tech-section { grid-template-columns: 1fr; }
+    .tech-half:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    .usecases-grid { grid-template-columns: 1fr 1fr; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 2.6rem; }
+    .stats-bar { flex-wrap: wrap; }
+    .stat { padding: 0.5rem 1.5rem; }
+    .usecases-grid { grid-template-columns: 1fr; }
+  }
+  /* ── EXTRACT SPOTLIGHT ── */
+  .extract-spotlight {
+    background: var(--ink);
+    padding: 6rem 4vw;
+  }
+
+  .extract-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5vw;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .extract-spotlight .section-label { color: rgba(247,244,238,0.4); }
+
+  .extract-spotlight h2 {
+    color: var(--paper);
+    font-size: clamp(2rem, 3.5vw, 3.2rem);
+    margin-bottom: 1.5rem;
+  }
+
+  .extract-spotlight h2 em { color: #4ade80; }
+
+  .extract-desc {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: rgba(247,244,238,0.6);
+    font-weight: 300;
+    margin-bottom: 2rem;
+  }
+
+  .extract-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .extract-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: rgba(247,244,238,0.05);
+    border: 1px solid rgba(247,244,238,0.1);
+    border-radius: 4px;
+    padding: 1rem 1.2rem;
+    transition: background 0.2s;
+  }
+
+  .extract-option:hover { background: rgba(247,244,238,0.08); }
+
+  .extract-option-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    width: 2.5rem;
+    text-align: center;
+  }
+
+  .extract-option-icon--green { filter: hue-rotate(90deg); }
+
+  .extract-option strong {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--paper);
+    margin-bottom: 0.2rem;
+  }
+
+  .extract-option span {
+    font-size: 0.82rem;
+    color: rgba(247,244,238,0.5);
+    line-height: 1.5;
+  }
+
+  .extract-note {
+    font-size: 0.78rem;
+    color: rgba(247,244,238,0.35);
+    line-height: 1.6;
+    border-left: 2px solid rgba(74,222,128,0.4);
+    padding-left: 0.8rem;
+    font-style: italic;
+  }
+
+  .extract-visual {
+    position: relative;
+  }
+
+  .extract-frame {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.5), 0 0 0 1px rgba(247,244,238,0.08);
+    position: relative;
+  }
+
+  .extract-frame img {
+    width: 100%;
+    display: block;
+  }
+
+  .extract-frame-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(15,14,11,0.75);
+    color: rgba(247,244,238,0.7);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.6rem 1rem;
+    text-align: center;
+  }
+
+  /* ── DOWNLOAD SECTION ── */
+  .download-section {
+    background: var(--ink);
+    padding: 7rem 4vw 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .download-section::before {
+    content: '⬇';
+    position: absolute;
+    font-size: 28vw;
+    opacity: 0.025;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .download-hero {
+    text-align: center;
+    margin-bottom: 4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .download-subtitle {
+    font-size: 1rem;
+    color: rgba(247,244,238,0.5);
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  .btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.2rem;
+    background: #4ade80;
+    color: #0a1a0f;
+    padding: 1.1rem 2.2rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.25s;
+    box-shadow: 0 8px 30px rgba(74,222,128,0.25);
+  }
+
+  .btn-download:hover {
+    background: #22c55e;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(74,222,128,0.35);
+  }
+
+  .btn-download-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+
+  .btn-download strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .btn-download small {
+    display: block;
+    font-size: 0.75rem;
+    opacity: 0.7;
+    font-weight: 400;
+    margin-top: 0.1rem;
+  }
+
+  .install-steps {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .install-step {
+    flex: 1;
+    min-width: 200px;
+    background: rgba(247,244,238,0.04);
+    border: 1px solid rgba(247,244,238,0.09);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: background 0.2s;
+  }
+
+  .install-step:hover { background: rgba(247,244,238,0.07); }
+
+  .install-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: rgba(74,222,128,0.3);
+    line-height: 1;
+    margin-bottom: 0.8rem;
+  }
+
+  .install-body h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--paper);
+    margin-bottom: 0.5rem;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .install-body p {
+    font-size: 0.82rem;
+    color: rgba(247,244,238,0.5);
+    line-height: 1.65;
+  }
+
+  .install-body code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    background: rgba(247,244,238,0.08);
+    padding: 0.1rem 0.35rem;
+    border-radius: 2px;
+    color: #86efac;
+  }
+
+  .install-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 0.4rem;
+    color: rgba(247,244,238,0.2);
+    font-size: 1.2rem;
+    align-self: center;
+    flex-shrink: 0;
+  }
+
+  .install-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    background: rgba(74,222,128,0.06);
+    border: 1px solid rgba(74,222,128,0.15);
+    border-radius: 4px;
+    padding: 1rem 1.3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .install-note-icon { font-size: 1rem; flex-shrink: 0; padding-top: 0.1rem; }
+
+  .install-note span:last-child {
+    font-size: 0.82rem;
+    color: rgba(247,244,238,0.5);
+    line-height: 1.65;
+  }
+
+  .install-note code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    background: rgba(247,244,238,0.08);
+    padding: 0.1rem 0.35rem;
+    border-radius: 2px;
+    color: #86efac;
+  }
+
+  @media (max-width: 900px) {
+    .extract-inner { grid-template-columns: 1fr; }
+    .install-steps { flex-direction: column; }
+    .install-arrow { transform: rotate(90deg); align-self: center; padding: 0.2rem 0; }
+  }
+
+  .intl-badge {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+    background: rgba(247,244,238,0.06);
+    border: 1px solid rgba(247,244,238,0.15);
+    border-left: 3px solid #4ade80;
+    border-radius: 4px;
+    padding: 1.2rem 1.5rem;
+    max-width: 640px;
+    margin: 0 auto 2rem;
+    text-align: left;
+  }
+
+  .intl-badge-flags {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+    padding-top: 0.1rem;
+  }
+
+  .intl-badge-text {
+    font-size: 0.85rem;
+    color: rgba(247,244,238,0.6);
+    line-height: 1.65;
+  }
+
+  .intl-badge-text strong {
+    display: block;
+    color: #4ade80;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HERO ══════════════ -->
+<section class="hero">
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <span>📚</span>
+      EPUB Reader
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="navigation.html" class="nav-link">Navigazione</a>
+      <a href="settings.html" class="nav-link">Impostazioni</a>
+      <a href="bookmark.html" class="nav-link">Segnalibri</a>
+      <a href="extractchapter.html" class="nav-link">Estrai</a>
+      <a href="htmleditor.html" class="nav-link">Editor</a>
+      <a href="helpers.html" class="nav-link">Helper</a>
+      <a href="faq.html" class="nav-link">FAQ</a>
+    </div>
+    <div class="nav-badge">MIT License</div>
+  </nav>
+
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-eyebrow fade-up">Lettore EPUB per il browser</div>
+      <h1 class="fade-up delay-1">Leggi. <em>Annota.</em><br>Crea.</h1>
+      <p class="hero-desc fade-up delay-2">
+        Una libreria digitale completa e un reader EPUB avanzato che vive interamente nel browser. Nessun server, nessun abbonamento, privacy totale.
+      </p>
+      <div class="hero-cta fade-up delay-3">
+        <a href="epubreader646.html" target="_blank" class="btn-primary" style="background: var(--accent);">Lancialo subito! 🚀</a>
+        <a href="#download" class="btn-primary">Download Free →</a>
+        <a href="#features" class="btn-secondary">Explore features ↓</a>
+      </div>
+    </div>
+    <div class="hero-visual fade-up delay-2">
+      <div class="screenshot-frame">
+        <img src="mylibrary.png" alt="My Library — EPUB Reader">
+        <div class="screenshot-badge">My Library</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-bar fade-up delay-4">
+    <div class="stat">
+      <span class="stat-num">15</span>
+      <span class="stat-label">temi di lettura</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">3</span>
+      <span class="stat-label">modalità export</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">∞</span>
+      <span class="stat-label">libri in libreria</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">0</span>
+      <span class="stat-label">server richiesti</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ FEATURES BENTO ══════════════ -->
+<section class="bento" id="features">
+  <div class="section-label">Funzionalità</div>
+  <h2>Tutto quello che serve<br><em>per leggere davvero</em></h2>
+
+  <div class="bento-grid">
+    <div class="bento-card bento-accent">
+      <span class="bento-icon">🌍</span>
+      <h3>Traduzione Istantanea</h3>
+      <p>Leggi libri in qualsiasi lingua tradotti al volo dal browser. Nessuna attesa, nessun costo aggiuntivo. Click destro → Traduci.</p>
+    </div>
+    <div class="bento-card">
+      <div class="bento-tag">Core</div>
+      <span class="bento-icon">📦</span>
+      <h3>Raccolta Chunks</h3>
+      <p>Seleziona testo e immagini mentre leggi. Copia automatica (Ctrl+C) o manuale. I frammenti vengono raccolti con testo e immagini in base64, pronti per il report.</p>
+    </div>
+    <div class="bento-card">
+      <span class="bento-icon">✏️</span>
+      <h3>Editor Report Custom</h3>
+      <p>Editor WYSIWYG integrato con plugin nativi per tabelle e ridimensionamento immagini. Gestione righe/colonne, export PDF e copia HTML.</p>
+    </div>
+    <div class="bento-card">
+      <span class="bento-icon">🎨</span>
+      <h3>Highlighting</h3>
+      <p>Evidenzia testo con tre colori (giallo, verde, rosa) e rimuovi le evidenziazioni. Lookup istantaneo su WordReference con un click.</p>
+    </div>
+    <div class="bento-card">
+      <div class="bento-tag">Export</div>
+      <span class="bento-icon">📄</span>
+      <h3>Export Multipli</h3>
+      <p>Esporta i capitoli estratti in PDF tramite dialog browser, in DOCX Word, o visualizzali nel PDF.js Viewer. Anche con sottolivelli interi.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CHAPTER EXTRACTION SPOTLIGHT ══════════════ -->
+<section class="extract-spotlight">
+  <div class="extract-inner">
+    <div class="extract-text">
+      <div class="section-label">Estrazione Capitoli</div>
+      <h2>Estrai esattamente<br><em>quello che ti serve</em></h2>
+      <p class="extract-desc">
+        Il sistema di estrazione comprende la gerarchia del libro. Con un solo click scegli se estrarre solo il capitolo corrente — oppure l'intero ramo: capitolo corrente più tutti i suoi sotto-capitoli annidati, assemblati in un unico documento standalone.
+      </p>
+      <div class="extract-options">
+        <div class="extract-option">
+          <div class="extract-option-icon">📄</div>
+          <div>
+            <strong>Solo il capitolo corrente</strong>
+            <span>Un documento focalizzato su un solo argomento. Ideale per lettura rapida, traduzione o annotazione.</span>
+          </div>
+        </div>
+        <div class="extract-option">
+          <div class="extract-option-icon extract-option-icon--green">🌿</div>
+          <div>
+            <strong>Corrente + tutti i sottolivelli</strong>
+            <span>L'intero albero della sezione in un documento — capitoli, sotto-capitoli e contenuti annidati uniti automaticamente.</span>
+          </div>
+        </div>
+      </div>
+      <div class="extract-note">
+        Entrambe le modalità producono un documento HTML standalone con toolbar, evidenziazioni, raccolta chunks e opzioni di export già pronte all'uso.
+      </div>
+    </div>
+    <div class="extract-visual">
+      <div class="extract-frame">
+        <img src="chapters.png" alt="Dropdown estrazione capitolo — Solo capitolo corrente / Corrente + tutti i sottolivelli">
+        <div class="extract-frame-label">Dropdown Estrazione Capitolo</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ SCREENSHOT SHOWCASE ══════════════ -->
+<section class="showcase">
+  <div class="section-label">Interfaccia</div>
+  <h2>Tre modalità,<br><em>un'unica applicazione</em></h2>
+
+  <div class="showcase-grid">
+    <div class="showcase-item">
+      <img src="openbook.png" alt="Modalità Lettura con sidebar TOC">
+      <div class="showcase-caption">📖 Lettura con indice gerarchico espandibile</div>
+    </div>
+    <div class="showcase-item">
+      <img src="extractchaptereditor.png" alt="Capitolo estratto con toolbar">
+      <div class="showcase-caption">📋 Capitolo estratto — toolbar completa con chunks</div>
+    </div>
+    <div class="showcase-item showcase-item-large">
+      <img src="htmleditor.png" alt="Editor HTML custom">
+      <div class="showcase-caption">✏️ Editor WYSIWYG con supporto tabelle e immagini</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ TOOLBAR DETAIL ══════════════ -->
+<section class="toolbar-section">
+  <div class="section-label">Bottoniere</div>
+  <h2>Ogni pulsante,<br><em>al posto giusto</em></h2>
+
+  <div class="toolbar-tabs">
+    <button class="toolbar-tab active" onclick="switchTab('reader')">Reader</button>
+    <button class="toolbar-tab" onclick="switchTab('chapter')">Capitolo Estratto</button>
+    <button class="toolbar-tab" onclick="switchTab('editor')">Editor Report</button>
+  </div>
+
+  <!-- READER TAB -->
+  <div class="toolbar-content active" id="tab-reader">
+    <div class="toolbar-buttons">
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-layout-sidebar -->
+          <svg viewBox="0 0 16 16"><path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5-1v12h9a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zM4 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h2z"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Toggle Sidebar</h5>
+          <p>Mostra/nasconde il TOC con indice gerarchico espandibile</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-bookmark-star -->
+          <svg viewBox="0 0 16 16"><path d="M7.84 4.1a.178.178 0 0 1 .32 0l.634 1.285a.178.178 0 0 0 .134.098l1.42.206a.178.178 0 0 1 .098.303L9.42 6.993a.178.178 0 0 0-.051.158l.242 1.414a.178.178 0 0 1-.258.187l-1.27-.668a.178.178 0 0 0-.165 0l-1.27.668a.178.178 0 0 1-.257-.187l.242-1.414a.178.178 0 0 0-.05-.158l-1.03-1.001a.178.178 0 0 1 .098-.303l1.42-.206a.178.178 0 0 0 .134-.098z"/><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1z"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>User Bookmarks</h5>
+          <p>Apre il cassetto segnalibri personali con badge contatore</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-type -->
+          <svg viewBox="0 0 16 16"><path d="m2.244 13.081.943-2.803H6.66l.944 2.803H8.86L5.54 3.75H4.322L1 13.081zm2.7-7.923L6.34 9.314H3.51l1.4-4.156zm9.146 7.027h.035v.896h1.128V8.125c0-1.51-1.114-2.345-2.646-2.345-1.736 0-2.59.916-2.666 2.174h1.108c.068-.718.595-1.19 1.517-1.19.971 0 1.518.52 1.518 1.464v.731H12.19c-1.647.007-2.522.8-2.522 2.058 0 1.319.957 2.18 2.345 2.18 1.06 0 1.716-.43 2.078-1.11zm-1.763.035c-.752 0-1.456-.397-1.456-1.244 0-.65.424-1.115 1.408-1.147h1.47v.742c0 .924-.684 1.649-1.422 1.649z"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Typography</h5>
+          <p>Font size, interlinea, pagina singola/doppia in un popup</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-palette -->
+          <svg viewBox="0 0 16 16"><path d="M8 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3m4 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M5 6.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m.5 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/><path d="M16 8c0 3.15-1.866 2.585-3.567 2.07C11.42 9.763 10.465 9.473 10 10c-.603.683-.475 1.819-.351 2.92C9.826 14.495 9.996 16 8 16a8 8 0 1 1 8-8m-8 7c.611 0 .654-.171.655-.176.078-.146.124-.464.07-1.119-.014-.168-.037-.37-.061-.591-.052-.464-.112-1.005-.118-1.462-.01-.707.083-1.61.704-2.314.369-.417.845-.578 1.272-.618.404-.038.812.026 1.16.104.343.077.702.186 1.025.284l.028.008c.346.105.658.199.953.266.653.148.904.083.964.015C14.999 9.563 15 9.259 15 8A7 7 0 1 0 8 15"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Reading Themes</h5>
+          <p>15 temi raggruppati — swatches visivi con anteprima colore</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-arrow-down-up -->
+          <svg viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5m-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Scroll Mode</h5>
+          <p>Toggle tra scorrimento continuo e navigazione paginata</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-eye -->
+          <svg viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Interface Settings</h5>
+          <p>Colori toolbar, sidebar, nav buttons e opacità</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-floppy -->
+          <svg viewBox="0 0 16 16"><path d="M11 2H9v3h2z"/><path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v3.5A1.5 1.5 0 0 1 11.5 6h-7A1.5 1.5 0 0 1 3 4.5V1H1.5a.5.5 0 0 0-.5.5m3 0v3.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Save State</h5>
+          <p>Salva manualmente posizione e preferenze per quel libro</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-file-earmark-arrow-down -->
+          <svg viewBox="0 0 16 16"><path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Extract Chapter</h5>
+          <p>Dropdown: solo capitolo corrente oppure capitolo + tutti i sottolivelli</p>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-screenshot">
+      <img src="chapters.png" alt="Reader toolbar con dropdown extract">
+    </div>
+  </div>
+
+  <!-- CHAPTER TAB -->
+  <div class="toolbar-content" id="tab-chapter">
+    <div class="toolbar-buttons">
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-type -->
+          <svg viewBox="0 0 16 16"><path d="m2.244 13.081.943-2.803H6.66l.944 2.803H8.86L5.54 3.75H4.322L1 13.081zm2.7-7.923L6.34 9.314H3.51l1.4-4.156zm9.146 7.027h.035v.896h1.128V8.125c0-1.51-1.114-2.345-2.646-2.345-1.736 0-2.59.916-2.666 2.174h1.108c.068-.718.595-1.19 1.517-1.19.971 0 1.518.52 1.518 1.464v.731H12.19c-1.647.007-2.522.8-2.522 2.058 0 1.319.957 2.18 2.345 2.18 1.06 0 1.716-.43 2.078-1.11zm-1.763.035c-.752 0-1.456-.397-1.456-1.244 0-.65.424-1.115 1.408-1.147h1.47v.742c0 .924-.684 1.649-1.422 1.649z"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Typography</h5>
+          <p>Font size e interlinea del capitolo estratto</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box" style="font-size:11px;font-weight:700;letter-spacing:-0.5px;">%</div>
+        <div class="tb-text">
+          <h5>Button Zoom</h5>
+          <p>Scala la toolbar: 100%, 110%, 120%, 130%</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-highlighter -->
+          <svg viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.096.644a2 2 0 0 1 2.791.036l1.433 1.433a2 2 0 0 1 .035 2.791l-.413.435-8.07 8.995-.09.9-1.003 1.003a1 1 0 0 1-1.414 0l-1.855-1.855a1 1 0 0 1 0-1.414l1.003-1.003.9-.09 8.995-8.07zm1.954 2.205-.413.437-8.07 8.995 5.073.457 8.995-8.07.436-.413a1 1 0 0 0-.018-1.396l-1.433-1.433a1 1 0 0 0-1.396-.017zM5.187 13.4 2.6 10.812l-.373 3.737z"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Highlight</h5>
+          <p>Dropdown: Yellow, Green, Pink + Remove</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-globe -->
+          <svg viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855A8 8 0 0 0 5.145 4H7.5zM4.09 4a9.3 9.3 0 0 1 .64-1.539 7 7 0 0 1 .597-.933A7.03 7.03 0 0 0 2.255 4zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a7 7 0 0 0-.656 2.5zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5zM8.5 5v2.5h2.99a12.5 12.5 0 0 0-.337-2.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5zM5.145 12q.208.58.468 1.068c.552 1.035 1.218 1.65 1.887 1.855V12zm.182 2.472a7 7 0 0 1-.597-.933A9.3 9.3 0 0 1 4.09 12H2.255a7 7 0 0 0 3.072 2.472M3.82 11a13.7 13.7 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5zm6.853 3.472A7 7 0 0 0 13.745 12H11.91a9.3 9.3 0 0 1-.64 1.539 7 7 0 0 1-.597.933M8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855q.26-.487.468-1.068zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.7 13.7 0 0 1-.312 2.5m2.802-3.5a7 7 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7 7 0 0 0-3.072-2.472c.218.284.418.598.597.933M10.855 4a8 8 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4z"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Dictionary</h5>
+          <p>Apre WordReference per la parola selezionata in nuova tab</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-trash -->
+          <svg viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Clear Collection</h5>
+          <p>Svuota la collezione chunks (richiede conferma)</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-plus-circle -->
+          <svg viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Add Selection</h5>
+          <p>Aggiunge testo e immagini selezionati alla collezione</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-pencil-square -->
+          <svg viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Launch Editor</h5>
+          <p>Dropdown: dalla collezione o dall'intero capitolo estratto</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box" style="gap:2px;font-size:11px;">
+          <!-- bi-printer + bi-file-earmark-word + bi-file-pdf: tre icone affiancate -->
+          <svg viewBox="0 0 16 16" style="width:13px;height:13px;fill:currentColor"><path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/><path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/></svg>
+          <svg viewBox="0 0 16 16" style="width:13px;height:13px;fill:currentColor"><path d="M5.485 6.879a.5.5 0 1 0-.97.242l1.5 6a.5.5 0 0 0 .97-.242zm2.552.015a.5.5 0 0 0-.965.26l1.338 4.969-.547 2.19a.5.5 0 0 0 .97.242l.596-2.384 1.338-4.97a.5.5 0 0 0-.965-.26L9 10.14zM14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/></svg>
+          <svg viewBox="0 0 16 16" style="width:13px;height:13px;fill:currentColor"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5zM8.04 7.996H6V11h2.041c1.187 0 2.047-.689 2.047-1.54 0-.686-.575-1.346-1.498-1.449.644-.21 1.135-.686 1.135-1.277 0-.734-.77-1.234-1.726-1.234zM7 8.5h.93c.602 0 1.063.285 1.063.738 0 .434-.43.762-1.044.762H7zm0 1.88h1.04c.672 0 1.153.327 1.153.814 0 .517-.466.806-1.163.806H7z"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Print / PDF · DOCX · PDF Viewer</h5>
+          <p>Tre pulsanti export: stampa nativa, Word, e viewer PDF.js</p>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-screenshot">
+      <img src="extractchaptereditor.png" alt="Toolbar capitolo estratto">
+    </div>
+  </div>
+
+  <!-- EDITOR TAB -->
+  <div class="toolbar-content" id="tab-editor">
+    <div class="toolbar-buttons">
+      <div class="tb-row">
+        <div class="tb-icon-box" style="font-size:11px;font-weight:700;letter-spacing:-0.5px;">B I U S</div>
+        <div class="tb-text">
+          <h5>Formattazione testo</h5>
+          <p>Grassetto, corsivo, sottolineato, barrato</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box" style="font-size:10px;font-weight:700;">H1 H2 H3</div>
+        <div class="tb-text">
+          <h5>Intestazioni e blocchi</h5>
+          <p>H1, H2, H3, Paragrafo</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box" style="font-size:10px;font-weight:700;">• L  1.L</div>
+        <div class="tb-text">
+          <h5>Liste</h5>
+          <p>Lista puntata e lista numerata</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box" style="font-size:18px;">🖼️</div>
+        <div class="tb-text">
+          <h5>Inserimento immagine</h5>
+          <p>Da file locale, salvata inline come base64</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box" style="font-size:10px;font-weight:700;">A− A+</div>
+        <div class="tb-text">
+          <h5>Font size editor</h5>
+          <p>Regola la dimensione del testo nell'editor (8–28px)</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box" style="font-size:16px;">⚙️</div>
+        <div class="tb-text">
+          <h5>Plugin Tabelle</h5>
+          <p>Toolbar contestuale flottante: inserisci/elimina righe e colonne</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box">
+          <!-- bi-printer -->
+          <svg viewBox="0 0 16 16"><path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/><path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/></svg>
+        </div>
+        <div class="tb-text">
+          <h5>Stampa / PDF</h5>
+          <p>Stampa nativa con @media print ottimizzato</p>
+        </div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-icon-box" style="font-size:10px;font-weight:600;letter-spacing:-0.5px;">&lt;/&gt; 📋</div>
+        <div class="tb-text">
+          <h5>Copia HTML</h5>
+          <p>Copia tutto l'HTML del documento negli appunti</p>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-screenshot">
+      <img src="htmleditor.png" alt="Editor HTML custom">
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ THEMES ══════════════ -->
+<section class="themes-section">
+  <div class="section-label">Temi di Lettura</div>
+  <h2>15 temi, <em>5 gruppi</em><br>per ogni momento della giornata</h2>
+
+  <div class="themes-grid">
+    <div class="theme-pill" style="background:#ffffff; color:#0f0e0b;">
+      <div class="theme-dot" style="background:#ffffff; border-color:#ccc;"></div> White
+    </div>
+    <div class="theme-pill" style="background:#fafafa; color:#1a1a1a;">
+      <div class="theme-dot" style="background:#fafafa; border-color:#ccc;"></div> Soft White
+    </div>
+    <div class="theme-pill" style="background:#fdf6e3; color:#3b2e1a;">
+      <div class="theme-dot" style="background:#fdf6e3;"></div> Cream
+    </div>
+    <div class="theme-pill" style="background:#f4ecd8; color:#3b2e1a;">
+      <div class="theme-dot" style="background:#f4ecd8;"></div> Sepia
+    </div>
+    <div class="theme-pill" style="background:#eee5d3; color:#33291a;">
+      <div class="theme-dot" style="background:#eee5d3;"></div> Parchment
+    </div>
+    <div class="theme-pill" style="background:#e5e7eb; color:#1f2937;">
+      <div class="theme-dot" style="background:#e5e7eb;"></div> Light Gray
+    </div>
+    <div class="theme-pill" style="background:#dfe3e8; color:#1c2530;">
+      <div class="theme-dot" style="background:#dfe3e8;"></div> Cool Gray
+    </div>
+    <div class="theme-pill" style="background:#e8e4df; color:#2c2419;">
+      <div class="theme-dot" style="background:#e8e4df;"></div> Warm Gray
+    </div>
+    <div class="theme-pill" style="background:#b0b8c1; color:#1a1f26;">
+      <div class="theme-dot" style="background:#b0b8c1;"></div> Mid Gray
+    </div>
+    <div class="theme-pill" style="background:#94a3b8; color:#0f172a;">
+      <div class="theme-dot" style="background:#94a3b8;"></div> Slate
+    </div>
+    <div class="theme-pill" style="background:#4b5563; color:#f3f4f6;">
+      <div class="theme-dot" style="background:#4b5563;"></div> Dark Gray
+    </div>
+    <div class="theme-pill" style="background:#374151; color:#e5e7eb;">
+      <div class="theme-dot" style="background:#374151;"></div> Charcoal
+    </div>
+    <div class="theme-pill" style="background:#1a1a1a; color:#d4d4d4;">
+      <div class="theme-dot" style="background:#1a1a1a;"></div> Dark
+    </div>
+    <div class="theme-pill" style="background:#0f1117; color:#c8cdd3;">
+      <div class="theme-dot" style="background:#0f1117;"></div> Midnight
+    </div>
+    <div class="theme-pill" style="background:#000000; color:#b8b8b8;">
+      <div class="theme-dot" style="background:#000; border-color:#333;"></div> True Black
+    </div>
+  </div>
+
+  <div class="themes-preview">
+    <img src="themes.png" alt="Popup selezione temi">
+  </div>
+</section>
+
+<!-- ══════════════ PRIVACY + TECH ══════════════ -->
+<section class="tech-section">
+  <div class="tech-half">
+    <div class="section-label">Privacy</div>
+    <h2>Zero server.<br><em>Zero tracking.</em></h2>
+    <ul class="tech-list">
+      <li><span class="check">✓</span> Tutti i libri salvati in IndexedDB nel browser</li>
+      <li><span class="check">✓</span> Preferenze e chunks in localStorage</li>
+      <li><span class="check">✓</span> Nessuna comunicazione con server esterni</li>
+      <li><span class="check">✓</span> Funziona offline dopo il primo caricamento</li>
+      <li><span class="check">✓</span> Nessun account, nessun abbonamento</li>
+      <li><span class="check">✓</span> File singolo HTML — tutto autocontenuto</li>
+    </ul>
+  </div>
+  <div class="tech-half">
+    <div class="section-label">Stack Tecnico</div>
+    <h2>Vanilla JS.<br><em>Nessuna dipendenza.</em></h2>
+    <div class="lib-stack">
+      <div class="lib-row">
+        <span class="lib-name">ePub.js</span>
+        <span class="lib-role">Rendering EPUB nel browser</span>
+        <span class="lib-badge">CDN</span>
+      </div>
+      <div class="lib-row">
+        <span class="lib-name">JSZip</span>
+        <span class="lib-role">Decompressione file EPUB</span>
+        <span class="lib-badge">CDN</span>
+      </div>
+      <div class="lib-row">
+        <span class="lib-name">Bootstrap Icons</span>
+        <span class="lib-role">Iconografia interfaccia</span>
+        <span class="lib-badge">CDN</span>
+      </div>
+      <div class="lib-row">
+        <span class="lib-name">jsPDF + html2canvas</span>
+        <span class="lib-role">Export PDF dall'editor</span>
+        <span class="lib-badge">CDN</span>
+      </div>
+      <div class="lib-row">
+        <span class="lib-name">Editor custom</span>
+        <span class="lib-role">contenteditable + execCommand</span>
+        <span class="lib-badge">built-in</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ USE CASES ══════════════ -->
+<section class="usecases">
+  <div class="section-label">Chi lo usa</div>
+  <h2>Sette modi di <em>leggere meglio</em></h2>
+  <div class="usecases-grid">
+    <div class="usecase-card">
+      <span class="usecase-emoji">📖</span>
+      <h3>Lettore Comune</h3>
+      <p>Leggi libri stranieri tradotti al volo dal browser. Bestseller il giorno dell'uscita, senza aspettare la traduzione ufficiale.</p>
+    </div>
+    <div class="usecase-card">
+      <span class="usecase-emoji">🎓</span>
+      <h3>Studente Universitario</h3>
+      <p>Estrai capitoli, evidenzia passaggi chiave, raccogli citazioni e genera PDF pronti per la consegna.</p>
+    </div>
+    <div class="usecase-card">
+      <span class="usecase-emoji">🔬</span>
+      <h3>Ricercatore</h3>
+      <p>Raccogli immagini e grafici dai paper in base64. Assembla report con tabelle e note — immagini sempre visibili, senza path rotti.</p>
+    </div>
+    <div class="usecase-card">
+      <span class="usecase-emoji">🌍</span>
+      <h3>Lettore Multilingue</h3>
+      <p>Impara lo spagnolo leggendo romanzi. Dictionary lookup su WordReference, highlight per il vocabolario nuovo.</p>
+    </div>
+    <div class="usecase-card">
+      <span class="usecase-emoji">📝</span>
+      <h3>Blogger / Creator</h3>
+      <p>Crea review professionali in Summernote. Copia l'HTML direttamente nel CMS — WordPress, Ghost, ovunque.</p>
+    </div>
+    <div class="usecase-card">
+      <span class="usecase-emoji">🎓</span>
+      <h3>Insegnante</h3>
+      <p>Prepara dispense da manuali. Highlight per concetti, esempi, esercizi. Export PDF → stampa per la classe.</p>
+    </div>
+    <div class="usecase-card">
+      <span class="usecase-emoji">🧳</span>
+      <h3>Viaggiatore</h3>
+      <p>Estrai quartieri dalla guida turistica, aggiungi mappe, esporta PDF offline per il telefono.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ DOWNLOAD + ISTRUZIONI ══════════════ -->
+<section class="download-section" id="download">
+  <div class="download-hero">
+    <div class="section-label" style="color:rgba(247,244,238,0.4);">Inizia subito</div>
+    <h2 style="color:var(--paper);">Scarica.<br><em>Decomprimi. Apri.</em></h2>
+
+    <div class="intl-badge">
+      <span class="intl-badge-flags">🇬🇧 🇺🇸 🇦🇺 🇨🇦 🇮🇳 🇯🇵 🇰🇷 🇧🇷 🇩🇪 🇫🇷</span>
+      <span class="intl-badge-text">
+        <strong>Interfaccia completamente in inglese</strong>
+        Pulsanti, menu, messaggi e funzioni sono in inglese — la lingua universale della tecnologia — per essere accessibile a utenti di ogni parte del mondo senza barriere linguistiche.
+      </span>
+    </div>
+
+    <p class="download-subtitle">Nessuna installazione. Nessun server. Nessun account. Solo un file zip con tutto il necessario.</p>
+    <a href="epubreader646.zip" download class="btn-download">
+      <span class="btn-download-icon">⬇</span>
+      <span>
+        <strong>Scarica epubreader646.zip</strong>
+        <small>Un solo file HTML · Tutte le dipendenze incluse</small>
+      </span>
+    </a>
+  </div>
+
+  <div class="install-steps">
+    <div class="install-step">
+      <div class="install-num">1</div>
+      <div class="install-body">
+        <h4>Scarica lo zip</h4>
+        <p>Clicca il pulsante qui sopra. Il file <code>epubreader646.zip</code> verrà salvato nella cartella Download.</p>
+      </div>
+    </div>
+    <div class="install-arrow">→</div>
+    <div class="install-step">
+      <div class="install-num">2</div>
+      <div class="install-body">
+        <h4>Decomprimi</h4>
+        <p>
+          <strong>Windows:</strong> tasto destro → <em>Estrai tutto…</em><br>
+          <strong>macOS:</strong> doppio click sullo zip<br>
+          <strong>Linux:</strong> <code>unzip epubreader646.zip</code>
+        </p>
+      </div>
+    </div>
+    <div class="install-arrow">→</div>
+    <div class="install-step">
+      <div class="install-num">3</div>
+      <div class="install-body">
+        <h4>Apri nel browser</h4>
+        <p>Doppio click su <code>epubreader646.html</code> — oppure trascinalo in Chrome, Firefox o Edge. Tutto qui.</p>
+      </div>
+    </div>
+    <div class="install-arrow">→</div>
+    <div class="install-step">
+      <div class="install-num">4</div>
+      <div class="install-body">
+        <h4>Importa il primo libro</h4>
+        <p>Clicca <strong>+ Import Book</strong>, seleziona un file <code>.epub</code> e inizia a leggere subito.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="install-note">
+    <span class="install-note-icon">💡</span>
+    <span>Per la migliore esperienza — in particolare per evitare restrizioni CORS con alcuni file EPUB — avvia un server locale nella cartella decompressa: <code>python -m http.server 8000</code> e apri <code>http://localhost:8000/epubreader646.html</code></span>
+  </div>
+</section>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer>
+  <span>MIT License · Vanilla JS · No Server</span>
+  <div class="footer-links">
+    <a href="index.html">Home</a> ·
+    <a href="navigation.html">Navigazione</a> ·
+    <a href="settings.html">Impostazioni</a> ·
+    <a href="bookmark.html">Segnalibri</a> ·
+    <a href="extractchapter.html">Estrai</a> ·
+    <a href="htmleditor.html">Editor</a> ·
+    <a href="helpers.html">Helper</a> ·
+    <a href="faq.html">FAQ</a>
+  </div>
+</footer>
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.toolbar-tab').forEach((t, i) => {
+      t.classList.toggle('active', ['reader','chapter','editor'][i] === name);
+    });
+    document.querySelectorAll('.toolbar-content').forEach(c => {
+      c.classList.remove('active');
+    });
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  // Intersection observer for fade-up elements
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.bento-card, .showcase-item, .usecase-card, .mode-panel, .lib-row').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>

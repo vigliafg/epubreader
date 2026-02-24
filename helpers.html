@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helpers - EPUB Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0b;
+    --paper: #f7f4ee;
+    --cream: #ede8dc;
+    --accent: #c8410a;
+    --accent2: #1a4a8a;
+    --gold: #c4922a;
+    --mid: #7a7060;
+    --border: rgba(15,14,11,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 4vw;
+    position: relative;
+    z-index: 10;
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+  }
+
+  .nav-logo:hover { color: var(--ink); }
+
+  .nav-logo span {
+    width: 28px;
+    height: 28px;
+    background: var(--ink);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--paper);
+    font-size: 14px;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .nav-link {
+    padding: 0.5rem 0.8rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: var(--ink);
+    background: var(--cream);
+  }
+
+  .nav-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+    margin-left: 1rem;
+  }
+
+  .hero {
+    min-height: 45vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    position: relative;
+    overflow: hidden;
+    padding: 4rem 4vw;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -8vw;
+    top: 5vh;
+    width: 45vw;
+    height: 70vh;
+    background: var(--cream);
+    border-radius: 2px;
+    z-index: 0;
+    transform: rotate(2deg);
+  }
+
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: center;
+    position: relative;
+    z-index: 5;
+  }
+
+  .hero-text { padding-right: 4vw; }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.5rem, 4.5vw, 4.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  h1 em { font-style: italic; color: var(--accent); }
+
+  .hero-desc {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--mid);
+    max-width: 480px;
+    font-weight: 300;
+  }
+
+  section { padding: 5rem 4vw; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  h2 em { font-style: italic; color: var(--accent); }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--mid);
+    font-weight: 300;
+  }
+
+  /* ── PDFJS SECTION ── */
+  .pdfjs-section {
+    background: var(--cream);
+    padding: 5rem 4vw;
+  }
+
+  .pdfjs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 2rem;
+    align-items: start;
+  }
+
+  .pdfjs-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .pdfjs-feature {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.2rem 1.5rem;
+  }
+
+  .pdfjs-feature h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .pdfjs-feature p {
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .pdfjs-visual {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15,14,11,0.15);
+  }
+
+  .pdfjs-visual img { width: 100%; display: block; }
+
+  /* ── TOOLS GRID ── */
+  .tools-section { padding: 5rem 4vw; }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .tool-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    transition: all 0.3s;
+  }
+
+  .tool-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(15,14,11,0.1);
+    border-color: var(--accent);
+  }
+
+  .tool-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .tool-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .tool-card p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .tool-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .tool-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: var(--cream);
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    color: var(--mid);
+  }
+
+  .tool-link {
+    font-size: 0.8rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: auto;
+  }
+
+  .tool-link:hover { text-decoration: underline; }
+
+  /* ── DETAIL SECTIONS ── */
+  .detail-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 4vw;
+  }
+
+  .detail-section .section-label { color: rgba(247,244,238,0.4); }
+  .detail-section h2 { color: var(--paper); }
+  .detail-section p { color: rgba(247,244,238,0.5); }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 2rem;
+    align-items: start;
+  }
+
+  .detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .detail-item {
+    background: rgba(247,244,238,0.05);
+    border: 1px solid rgba(247,244,238,0.1);
+    border-radius: 4px;
+    padding: 1rem 1.2rem;
+  }
+
+  .detail-item h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--paper);
+    margin-bottom: 0.3rem;
+  }
+
+  .detail-item p {
+    font-size: 0.8rem;
+    color: rgba(247,244,238,0.45);
+    line-height: 1.5;
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 4vw;
+    text-align: center;
+  }
+
+  .cta-section h2 { color: var(--paper); margin-bottom: 1rem; }
+  .cta-section p { color: rgba(247,244,238,0.5); margin-bottom: 2rem; }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    padding: 0.9rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .btn-primary:hover { background: #e04d0e; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--paper);
+    padding: 0.9rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(247,244,238,0.3);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .btn-secondary:hover { border-color: var(--paper); background: rgba(247,244,238,0.05); }
+
+  footer {
+    background: #07070a;
+    color: rgba(247,244,238,0.35);
+    padding: 2rem 4vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+
+  footer a {
+    color: rgba(247,244,238,0.5);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  footer a:hover { color: var(--paper); }
+
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .hero-content { grid-template-columns: 1fr; gap: 2rem; }
+    .hero::after { display: none; }
+    .hero-text { padding-right: 0; }
+    .pdfjs-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .tools-grid { grid-template-columns: 1fr; }
+    .detail-grid { grid-template-columns: 1fr; gap: 2rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <span>📚</span>
+    EPUB Reader
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="navigation.html" class="nav-link">Navigazione</a>
+    <a href="settings.html" class="nav-link">Impostazioni</a>
+    <a href="bookmark.html" class="nav-link">Segnalibri</a>
+    <a href="extractchapter.html" class="nav-link">Estrai</a>
+    <a href="htmleditor.html" class="nav-link">Editor</a>
+    <a href="helpers.html" class="nav-link active">Helper</a>
+    <a href="faq.html" class="nav-link">FAQ</a>
+  </div>
+  <div class="nav-badge">MIT License</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-eyebrow">Tools</div>
+      <h1>Helper <em>Tools</em></h1>
+      <p class="hero-desc">
+        Tool aggiuntivi per gestire i tuoi EPUB: compressione immagini, batch processing e splitting. Tutti eseguibili direttamente nel browser.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="pdfjs-section">
+  <div class="section-label">PDF Viewer</div>
+  <h2>Mozilla <em>PDF.js</em></h2>
+  
+  <div class="pdfjs-grid">
+    <div class="pdfjs-features">
+      <div class="pdfjs-feature">
+        <h4>📖 Visualizzazione PDF</h4>
+        <p>Visualizza i capitoli estratti nel viewer PDF.js di Mozilla in una nuova tab. Rendering di alta qualità direttamente nel browser.</p>
+      </div>
+      
+      <div class="pdfjs-feature">
+        <h4>🔍 Zoom e Navigazione</h4>
+        <p>Zoom avanti e indietro, navigazione tra pagine, ricerca testuale e visualizzazione a schermo intero.</p>
+      </div>
+      
+      <div class="pdfjs-feature">
+        <h4>🖨️ Stampa Diretta</h4>
+        <p>Stampa direttamente dal viewer PDF.js usando le funzionalità native del browser.</p>
+      </div>
+    </div>
+    
+    <div class="pdfjs-visual">
+      <img src="pdfjseditor.png" alt="PDF.js Viewer">
+    </div>
+  </div>
+</section>
+
+<section class="tools-section">
+  <div class="section-label">Strumenti</div>
+  <h2>Tool per i <em>tuoi EPUB</em></h2>
+  
+  <div class="tools-grid">
+    <div class="tool-card">
+      <span class="tool-icon">🗜️</span>
+      <h3>ePub Slimmer</h3>
+      <p>Comprime le immagini di un singolo file EPUB per ridurne le dimensioni. Supporta JPG, PNG e WebP.</p>
+      <div class="tool-meta">
+        <span class="tool-badge">1 file</span>
+        <span class="tool-badge">Compressione</span>
+        <a href="epubslimmer.html" class="tool-link">Apri →</a>
+      </div>
+    </div>
+    
+    <div class="tool-card">
+      <span class="tool-icon">📦</span>
+      <h3>Multi ePub Slimmer</h3>
+      <p>Elabora fino a 10 file EPUB in parallelo. Compressione batch con progresso individuale per ogni file.</p>
+      <div class="tool-meta">
+        <span class="tool-badge">10 file</span>
+        <span class="tool-badge">Batch</span>
+        <a href="multiepubslimer.html" class="tool-link">Apri →</a>
+      </div>
+    </div>
+    
+    <div class="tool-card">
+      <span class="tool-icon">✂️</span>
+      <h3>ePub Splitter</h3>
+      <p>Estrai singoli capitoli da un EPUB. Scegli quali capitoli esportare e scaricali come file separati.</p>
+      <div class="tool-meta">
+        <span class="tool-badge">Estratti</span>
+        <span class="tool-badge">TOC</span>
+        <a href="epubsplitter.html" class="tool-link">Apri →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="detail-section">
+  <div class="section-label">ePub Slimmer</div>
+  <h2>Comprime le <em>immagini</em></h2>
+  
+  <div class="detail-grid">
+    <div class="detail-list">
+      <div class="detail-item">
+        <h4>📤 Upload Semplice</h4>
+        <p>Trascina il tuo file EPUB o selezionalo dal browser. Supporta file .epub standard.</p>
+      </div>
+      
+      <div class="detail-item">
+        <h4>🎚️ Qualità Regolabile</h4>
+        <p>Slider per impostare la qualità di compressione (default 60%). Più bassa = file più piccolo.</p>
+      </div>
+      
+      <div class="detail-item">
+        <h4>⚡ Elaborazione Parallela</h4>
+        <p>Elaborazione di 4 immagini in parallelo per velocità ottimale. Barra di progresso in tempo reale.</p>
+      </div>
+      
+      <div class="detail-item">
+        <h4>💾 Download Automatico</h4>
+        <p>Download automatico del file compresso con suffisso "_slim.epub". Mostra la percentuale di riduzione.</p>
+      </div>
+    </div>
+    
+    <div class="detail-list">
+      <div class="detail-item">
+        <h4>📦 Multi ePub Slimmer</h4>
+        <p>Elabora fino a 10 file contemporaneamente. Coda con stato individuale: pending, processing, done, error.</p>
+      </div>
+      
+      <div class="detail-item">
+        <h4>🔄 Progresso Globale</h4>
+        <p>Barra di progresso che mostra quanti file sono stati elaborati sul totale. Statistiche finali per ogni file.</p>
+      </div>
+      
+      <div class="detail-item">
+        <h4>🗑️ Gestione Errori</h4>
+        <p>Se un file fallisce, gli altri continuano l'elaborazione. Messaggi di errore chiari per ogni problema.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="detail-section">
+  <div class="section-label">ePub Splitter</div>
+  <h2>Estrai i <em>capitoli</em></h2>
+  
+  <div class="detail-grid">
+    <div class="detail-list">
+      <div class="detail-item">
+        <h4>📚 Parsing TOC</h4>
+        <p>Legge automaticamente la struttura del libro dall'OPF e mostra l'albero gerarchico dei capitoli.</p>
+      </div>
+      
+      <div class="detail-item">
+        <h4>☑️ Selezione Multipla</h4>
+        <p>Seleziona uno o più capitoli da estrarre. Checkbox per scegliere esattamente cosa includere.</p>
+      </div>
+      
+      <div class="detail-item">
+        <h4>📄 Export Capitoli</h4>
+        <p>Esporta i capitoli selezionati come file EPUB separati. Ogni capitolo diventa un libro standalone.</p>
+      </div>
+    </div>
+    
+    <div class="detail-list">
+      <div class="detail-item">
+        <h4>📦 JSZip Integration</h4>
+        <p>Utilizza JSZip per manipolare il contenuto EPUB. Estrazione e ricostruzione del file completamente nel browser.</p>
+      </div>
+      
+      <div class="detail-item">
+        <h4>🔍 Validazione</h4>
+        <p>Validazione del file EPUB caricato. Messaggi di errore per file corrotti o non validi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2>Usa gli <em>strumenti</em></h2>
+  <p>Tool gratuiti per gestire i tuoi EPUB direttamente nel browser.</p>
+  <div class="cta-buttons">
+    <a href="index.html" class="btn-primary">← Torna alla Home</a>
+    <a href="faq.html" class="btn-secondary">Leggi FAQ →</a>
+  </div>
+</section>
+
+<footer>
+  <div>MIT License · Vanilla JS · No Server</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a> ·
+    <a href="helpers.html">Helper</a> ·
+    <a href="faq.html">FAQ</a>
+  </div>
+</footer>
+
+</body>
+</html>

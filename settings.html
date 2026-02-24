@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings - EPUB Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0b;
+    --paper: #f7f4ee;
+    --cream: #ede8dc;
+    --accent: #c8410a;
+    --accent2: #1a4a8a;
+    --gold: #c4922a;
+    --mid: #7a7060;
+    --border: rgba(15,14,11,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 4vw;
+    position: relative;
+    z-index: 10;
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+  }
+
+  .nav-logo:hover { color: var(--ink); }
+
+  .nav-logo span {
+    width: 28px;
+    height: 28px;
+    background: var(--ink);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--paper);
+    font-size: 14px;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .nav-link {
+    padding: 0.5rem 0.8rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: var(--ink);
+    background: var(--cream);
+  }
+
+  .nav-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+    margin-left: 1rem;
+  }
+
+  .hero {
+    min-height: 45vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    position: relative;
+    overflow: hidden;
+    padding: 4rem 4vw;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -8vw;
+    top: 5vh;
+    width: 45vw;
+    height: 70vh;
+    background: var(--cream);
+    border-radius: 2px;
+    z-index: 0;
+    transform: rotate(2deg);
+  }
+
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: center;
+    position: relative;
+    z-index: 5;
+  }
+
+  .hero-text { padding-right: 4vw; }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.5rem, 4.5vw, 4.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  h1 em { font-style: italic; color: var(--accent); }
+
+  .hero-desc {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--mid);
+    max-width: 480px;
+    font-weight: 300;
+  }
+
+  .hero-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 2vw;
+  }
+
+  .screenshot-frame {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(15,14,11,0.18), 0 8px 20px rgba(15,14,11,0.1);
+  }
+
+  .screenshot-frame img { width: 100%; display: block; }
+
+  section { padding: 5rem 4vw; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  h2 em { font-style: italic; color: var(--accent); }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--mid);
+    font-weight: 300;
+  }
+
+  /* ── TYPOGRAPHY SECTION ── */
+  .typo-section {
+    background: var(--cream);
+    padding: 5rem 4vw;
+  }
+
+  .typo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .typo-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .typo-control {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+  }
+
+  .typo-control h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .typo-control h4 span {
+    font-size: 1rem;
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .ctrl-btn {
+    width: 36px;
+    height: 36px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .ctrl-btn:hover { background: var(--accent); }
+
+  .ctrl-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    min-width: 60px;
+    text-align: center;
+    color: var(--ink);
+  }
+
+  .page-view-options {
+    display: flex;
+    gap: 0.8rem;
+  }
+
+  .view-option {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .view-option:hover { border-color: var(--accent); }
+
+  .view-option.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .typo-visual {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15,14,11,0.15);
+  }
+
+  .typo-visual img { width: 100%; display: block; }
+
+  /* ── THEMES SECTION ── */
+  .themes-section { padding: 5rem 4vw; }
+
+  .theme-groups {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .theme-group {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+  }
+
+  .theme-group h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .theme-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .theme-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .theme-swatch:hover {
+    transform: scale(1.1);
+    border-color: var(--accent);
+  }
+
+  .theme-swatch.active {
+    border-color: var(--ink);
+  }
+
+  .theme-swatch::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    color: var(--mid);
+  }
+
+  .theme-swatch:hover::after { opacity: 1; }
+
+  .theme-preview {
+    margin-top: 2rem;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(15,14,11,0.12);
+  }
+
+  .theme-preview img { width: 100%; display: block; }
+
+  /* ── INTERFACE SECTION ── */
+  .interface-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 4vw;
+  }
+
+  .interface-section .section-label { color: rgba(247,244,238,0.4); }
+  .interface-section h2 { color: var(--paper); }
+  .interface-section p { color: rgba(247,244,238,0.5); }
+
+  .interface-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 2rem;
+    align-items: start;
+  }
+
+  .interface-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .interface-control {
+    background: rgba(247,244,238,0.05);
+    border: 1px solid rgba(247,244,238,0.1);
+    border-radius: 4px;
+    padding: 1.2rem;
+  }
+
+  .interface-control label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--paper);
+    margin-bottom: 0.8rem;
+  }
+
+  .interface-control input[type="color"] {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: none;
+  }
+
+  .interface-control input[type="range"] {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(247,244,238,0.2);
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .interface-control input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  .interface-visual {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+
+  .interface-visual img { width: 100%; display: block; }
+
+  /* ── CTA ── */
+  .cta-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 4vw;
+    text-align: center;
+  }
+
+  .cta-section h2 { color: var(--paper); margin-bottom: 1rem; }
+  .cta-section p { color: rgba(247,244,238,0.5); margin-bottom: 2rem; }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    padding: 0.9rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .btn-primary:hover { background: #e04d0e; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--paper);
+    padding: 0.9rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(247,244,238,0.3);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .btn-secondary:hover { border-color: var(--paper); background: rgba(247,244,238,0.05); }
+
+  footer {
+    background: #07070a;
+    color: rgba(247,244,238,0.35);
+    padding: 2rem 4vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+
+  footer a {
+    color: rgba(247,244,238,0.5);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  footer a:hover { color: var(--paper); }
+
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .hero-content { grid-template-columns: 1fr; gap: 2rem; }
+    .hero::after { display: none; }
+    .hero-text { padding-right: 0; }
+    .typo-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .theme-groups { grid-template-columns: 1fr 1fr; }
+    .interface-grid { grid-template-columns: 1fr; gap: 2rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 2.2rem; }
+    .theme-groups { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <span>📚</span>
+    EPUB Reader
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="navigation.html" class="nav-link">Navigazione</a>
+    <a href="settings.html" class="nav-link active">Impostazioni</a>
+    <a href="bookmark.html" class="nav-link">Segnalibri</a>
+    <a href="extractchapter.html" class="nav-link">Estrai</a>
+    <a href="htmleditor.html" class="nav-link">Editor</a>
+    <a href="helpers.html" class="nav-link">Helper</a>
+    <a href="faq.html" class="nav-link">FAQ</a>
+  </div>
+  -link">FAQ<div class="nav-badge">MIT License</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-eyebrow">Personalizzazione</div>
+      <h1>Leggi a <em>tuo</em> modo</h1>
+      <p class="hero-desc">
+        Typography, temi e impostazioni dell'interfaccia. Tutto personalizzabile per un'esperienza di lettura su misura.
+      </p>
+    </div>
+    <div class="hero-visual">
+      <div class="screenshot-frame">
+        <img src="typo.png" alt="Typography Settings">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="typo-section">
+  <div class="section-label">Typography</div>
+  <h2>Tipo<em>grafia</em></h2>
+  
+  <div class="typo-grid">
+    <div class="typo-controls">
+      <div class="typo-control">
+        <h4><span>A</span> Font Size</h4>
+        <div class="control-row">
+          <button class="ctrl-btn">−</button>
+          <span class="ctrl-value">100%</span>
+          <button class="ctrl-btn">+</button>
+          <span style="margin-left: auto; font-size: 0.8rem; color: var(--mid);">Range: 50% - 200%</span>
+        </div>
+      </div>
+      
+      <div class="typo-control">
+        <h4><span>≡</span> Line Height</h4>
+        <div class="control-row">
+          <button class="ctrl-btn">−</button>
+          <span class="ctrl-value">1.4</span>
+          <button class="ctrl-btn">+</button>
+          <span style="margin-left: auto; font-size: 0.8rem; color: var(--mid);">Range: 1.0 - 1.8</span>
+        </div>
+      </div>
+      
+      <div class="typo-control">
+        <h4><span>📄</span> Page View</h4>
+        <div class="page-view-options">
+          <div class="view-option active">
+            <span>📄</span> Pagina Singola
+          </div>
+          <div class="view-option">
+            <span>📖</span> Doppia Pagina
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="typo-visual">
+      <img src="typo.png" alt="Typography Popup">
+    </div>
+  </div>
+</section>
+
+<section class="themes-section">
+  <div class="section-label">Themes</div>
+  <h2>15 Temi, <em>5 Gruppi</em></h2>
+  <p>Scegli il tema perfetto per ogni momento della giornata.</p>
+  
+  <div class="theme-groups">
+    <div class="theme-group">
+      <h4>White</h4>
+      <div class="theme-swatches">
+        <div class="theme-swatch active" style="background: #ffffff;" data-name="Normal"></div>
+        <div class="theme-swatch" style="background: #fafafa;" data-name="Soft White"></div>
+      </div>
+    </div>
+    
+    <div class="theme-group">
+      <h4>Cream / Sepia</h4>
+      <div class="theme-swatches">
+        <div class="theme-swatch" style="background: #fdf6e3;" data-name="Cream"></div>
+        <div class="theme-swatch" style="background: #f4ecd8;" data-name="Sepia"></div>
+        <div class="theme-swatch" style="background: #eee5d3;" data-name="Parchment"></div>
+      </div>
+    </div>
+    
+    <div class="theme-group">
+      <h4>Light Gray</h4>
+      <div class="theme-swatches">
+        <div class="theme-swatch" style="background: #e5e7eb;" data-name="Light Gray"></div>
+        <div class="theme-swatch" style="background: #dfe3e8;" data-name="Cool Gray"></div>
+        <div class="theme-swatch" style="background: #e8e4df;" data-name="Warm Gray"></div>
+      </div>
+    </div>
+    
+    <div class="theme-group">
+      <h4>Medium Gray</h4>
+      <div class="theme-swatches">
+        <div class="theme-swatch" style="background: #b0b8c1;" data-name="Mid Gray"></div>
+        <div class="theme-swatch" style="background: #94a3b8;" data-name="Slate"></div>
+      </div>
+    </div>
+    
+    <div class="theme-group">
+      <h4>Dark / Black</h4>
+      <div class="theme-swatches">
+        <div class="theme-swatch" style="background: #4b5563;" data-name="Dark Gray"></div>
+        <div class="theme-swatch" style="background: #374151;" data-name="Charcoal"></div>
+        <div class="theme-swatch" style="background: #1a1a1a;" data-name="Dark"></div>
+        <div class="theme-swatch" style="background: #0f1117;" data-name="Midnight"></div>
+        <div class="theme-swatch" style="background: #000000;" data-name="True Black"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="theme-preview">
+    <img src="themes.png" alt="Themes Preview">
+  </div>
+</section>
+
+<section class="interface-section">
+  <div class="section-label">Interface</div>
+  <h2>Impostazioni <em>Interfaccia</em></h2>
+  <p>Personalizza i colori di toolbar, sidebar, pulsanti di navigazione e cassetto segnalibri.</p>
+  
+  <div class="interface-grid">
+    <div class="interface-controls">
+      <div class="interface-control">
+        <label>
+          <span>Toolbar Color</span>
+          <input type="color" value="#1a1a1a">
+        </label>
+      </div>
+      
+      <div class="interface-control">
+        <label>
+          <span>Sidebar Color</span>
+          <input type="color" value="#f7f4ee">
+        </label>
+      </div>
+      
+      <div class="interface-control">
+        <label>
+          <span>Nav Buttons Color</span>
+          <input type="color" value="#1a1a1a">
+        </label>
+      </div>
+      
+      <div class="interface-control">
+        <label>
+          <span>Nav Opacity</span>
+          <span style="font-size: 0.8rem; opacity: 0.7;">0.8</span>
+        </label>
+        <input type="range" min="0.1" max="1" step="0.1" value="0.8">
+      </div>
+      
+      <div class="interface-control">
+        <label>
+          <span>Bookmark Drawer Color</span>
+          <input type="color" value="#f7f4ee">
+        </label>
+      </div>
+    </div>
+    
+    <div class="interface-visual">
+      <img src="interfacesettings.png" alt="Interface Settings">
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2>Personalizza la tua <em>lettura</em></h2>
+  <p>Scegli il tema che preferisci e imposta l'interfaccia come più ti piace.</p>
+  <div class="cta-buttons">
+    <a href="index.html" class="btn-primary">← Torna alla Home</a>
+    <a href="bookmark.html" class="btn-secondary">Scopri i Bookmark →</a>
+  </div>
+</section>
+
+<footer>
+  <div>MIT License · Vanilla JS · No Server</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a> ·
+    <a href="settings.html">Impostazioni</a> ·
+    <a href="bookmark.html">Segnalibri</a> ·
+    <a href="faq.html">FAQ</a>
+  </div>
+</footer>
+
+</body>
+</html>

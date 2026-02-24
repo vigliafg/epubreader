@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+title>Navigation - EPUB Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0b;
+    --paper: #f7f4ee;
+    --cream: #ede8dc;
+    --accent: #c8410a;
+    --accent2: #1a4a8a;
+    --gold: #c4922a;
+    --mid: #7a7060;
+    --border: rgba(15,14,11,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ── NAVIGATION ── */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 4vw;
+    position: relative;
+    z-index: 10;
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+  }
+
+  .nav-logo:hover { color: var(--ink); }
+
+  .nav-logo span {
+    width: 28px;
+    height: 28px;
+    background: var(--ink);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--paper);
+    font-size: 14px;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .nav-link {
+    padding: 0.5rem 0.8rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: var(--ink);
+    background: var(--cream);
+  }
+
+  .nav-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+    margin-left: 1rem;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 50vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    position: relative;
+    overflow: hidden;
+    padding: 4rem 4vw;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -8vw;
+    top: 5vh;
+    width: 45vw;
+    height: 70vh;
+    background: var(--cream);
+    border-radius: 2px;
+    z-index: 0;
+    transform: rotate(2deg);
+  }
+
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: center;
+    position: relative;
+    z-index: 5;
+  }
+
+  .hero-text {
+    padding-right: 4vw;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.5rem, 4.5vw, 4.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--mid);
+    max-width: 480px;
+    font-weight: 300;
+  }
+
+  .hero-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 2vw;
+  }
+
+  .screenshot-frame {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(15,14,11,0.18), 0 8px 20px rgba(15,14,11,0.1);
+  }
+
+  .screenshot-frame img {
+    width: 100%;
+    display: block;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 5rem 4vw;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  h2 em { font-style: italic; color: var(--accent); }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--mid);
+    font-weight: 300;
+  }
+
+  /* ── MODE CARDS ── */
+  .modes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+
+  .mode-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    transition: all 0.3s;
+  }
+
+  .mode-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(15,14,11,0.1);
+  }
+
+  .mode-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .mode-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .mode-card p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .mode-card.active {
+    border-color: var(--accent);
+    background: linear-gradient(to bottom, rgba(200,65,10,0.03), transparent);
+  }
+
+  .mode-card.active::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: var(--accent);
+    margin-bottom: 1rem;
+    border-radius: 2px 2px 0 0;
+    margin: -2rem -2rem 1rem -2rem;
+  }
+
+  /* ── TOOLBAR SECTION ── */
+  .toolbar-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 4vw;
+  }
+
+  .toolbar-section .section-label { color: rgba(247,244,238,0.4); }
+  .toolbar-section h2 { color: var(--paper); }
+  .toolbar-section p { color: rgba(247,244,238,0.5); }
+
+  .toolbar-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 2.5rem;
+    align-items: start;
+  }
+
+  .feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .feature-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(247,244,238,0.08);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    border: 1px solid rgba(247,244,238,0.1);
+  }
+
+  .feature-text h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--paper);
+    margin-bottom: 0.3rem;
+  }
+
+  .feature-text p {
+    font-size: 0.82rem;
+    color: rgba(247,244,238,0.45);
+    line-height: 1.5;
+  }
+
+  .feature-visual {
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+
+  .feature-visual img {
+    width: 100%;
+    display: block;
+  }
+
+  /* ── RESIZE SECTION ── */
+  .resize-section {
+    background: var(--cream);
+    padding: 5rem 4vw;
+  }
+
+  .resize-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    margin-top: 2rem;
+  }
+
+  .resize-options {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+
+  .resize-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .resize-pill:hover {
+    border-color: var(--accent);
+    transform: scale(1.02);
+  }
+
+  .resize-pill.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* ── NAV BUTTONS ── */
+  .nav-buttons-section {
+    padding: 5rem 4vw;
+  }
+
+  .nav-buttons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 2rem;
+    align-items: start;
+  }
+
+  .floating-buttons {
+    position: relative;
+    min-height: 300px;
+    background: linear-gradient(135deg, #f8f6f2 0%, #ede8dc 100%);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .float-arrow {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+  }
+
+  .float-arrow:hover {
+    background: var(--accent);
+    transform: scale(1.1);
+  }
+
+  .float-arrow.left { top: 50%; left: 20px; transform: translateY(-50%); }
+  .float-arrow.right { top: 50%; right: 20px; transform: translateY(-50%); }
+
+  .float-arrow.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .float-arrow.disabled:hover {
+    background: var(--ink);
+    transform: translateY(-50%);
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 4vw;
+    text-align: center;
+  }
+
+  .cta-section h2 {
+    color: var(--paper);
+    margin-bottom: 1rem;
+  }
+
+  .cta-section p {
+    color: rgba(247,244,238,0.5);
+    margin-bottom: 2rem;
+  }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    padding: 0.9rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .btn-primary:hover {
+    background: #e04d0e;
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--paper);
+    padding: 0.9rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(247,244,238,0.3);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--paper);
+    background: rgba(247,244,238,0.05);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #07070a;
+    color: rgba(247,244,238,0.35);
+    padding: 2rem 4vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+
+  footer a {
+    color: rgba(247,244,238,0.5);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  footer a:hover { color: var(--paper); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .hero-content { grid-template-columns: 1fr; gap: 2rem; }
+    .hero::after { display: none; }
+    .hero-text { padding-right: 0; }
+    .modes-grid { grid-template-columns: 1fr; }
+    .toolbar-features { grid-template-columns: 1fr; gap: 2rem; }
+    .resize-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .nav-buttons-grid { grid-template-columns: 1fr; gap: 2rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 2.2rem; }
+    .resize-pill { font-size: 0.8rem; padding: 0.5rem 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <span>📚</span>
+    EPUB Reader
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="navigation.html" class="nav-link active">Navigazione</a>
+    <a href="settings.html" class="nav-link">Impostazioni</a>
+    <a href="bookmark.html" class="nav-link">Segnalibri</a>
+    <a href="extractchapter.html" class="nav-link">Estrai</a>
+    <a href="htmleditor.html" class="nav-link">Editor</a>
+    <a href="helpers.html" class="nav-link">Helper</a>
+    <a href="faq.html" class="nav-link">FAQ</a>
+  </div>
+  <div class="nav-badge">MIT License</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-eyebrow">Modalità di Lettura</div>
+      <h1>Leggi come <em>preferisci</em></h1>
+      <p class="hero-desc">
+        Scegli tra pagina singola, doppia pagina o scroll continuo. La navigazione si adatta al tuo stile di lettura con pulsanti flottanti e ridimensionabili.
+      </p>
+    </div>
+    <div class="hero-visual">
+      <div class="screenshot-frame">
+        <img src="openbook.png" alt="Modalità Lettura">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="modes-section">
+  <div class="section-label">Modalità di Visualizzazione</div>
+  <h2>Tre modi di <em>leggere</em></h2>
+  
+  <div class="modes-grid">
+    <div class="mode-card active">
+      <span class="mode-icon">📄</span>
+      <h3>Pagina Singola</h3>
+      <p>Una pagina alla volta con navigazione tramite frecce. Ideale per schermi piccoli, tablet e lettura concentrata. I pulsanti di navigazione appaiono ai lati dello schermo.</p>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">📖</span>
+      <h3>Doppia Pagina</h3>
+      <p>Due pagine affiancate che simulano un libro aperto. Ottimale per schermi larghi (>1024px). La modalità si attiva automaticamente in base alla larghezza della finestra.</p>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">📜</span>
+      <h3>Scroll Continuo</h3>
+      <p>Flusso verticale continuo senza interruzioni. Ideale per lettura immersiva e scorrimento rapido. I pulsanti freccia vengono nascosti automaticamente.</p>
+    </div>
+  </div>
+</section>
+
+<section class="toolbar-section">
+  <div class="section-label">Navigazione</div>
+  <h2>Pulsanti <em>Flottanti</em></h2>
+  
+  <div class="toolbar-features">
+    <div class="feature-list">
+      <div class="feature-row">
+        <div class="feature-icon">⬅️</div>
+        <div class="feature-text">
+          <h4>Freccia Sinistra</h4>
+          <p>Passa alla pagina precedente. Si nasconde automaticamente in modalità scroll continuo.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-icon">➡️</div>
+        <div class="feature-text">
+          <h4>Freccia Destra</h4>
+          <p>Passa alla pagina successiva. Appare come bottone circolare sul lato destro dello schermo.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-icon">🖱️</div>
+        <div class="feature-text">
+          <h4>Click Laterale</h4>
+          <p>Click sulla metà sinistra della pagina torna indietro, click sulla metà destra avanza.</p>
+        </div>
+      </div>
+    </div>
+    <div class="feature-visual">
+      <img src="floatingbuttons.png" alt="Pulsanti di navigazione">
+    </div>
+  </div>
+</section>
+
+<section class="resize-section">
+  <div class="section-label">Toolbar</div>
+  <h2>Ridimensiona la <em>Bottoniera</em></h2>
+  
+  <div class="resize-grid">
+    <div>
+      <p>Il pulsante <strong>Button Zoom (%)</strong> nella toolbar principale permette di ridimensionare l'interfaccia di lettura. Cicla tra 4 livelli di zoom:</p>
+      <div class="resize-options">
+        <div class="resize-pill active">100%</div>
+        <div class="resize-pill">110%</div>
+        <div class="resize-pill">120%</div>
+        <div class="resize-pill">130%</div>
+      </div>
+      <p style="margin-top: 1.5rem;">Questa funzionalità è utile quando:</p>
+      <ul style="margin-top: 0.5rem; margin-left: 1.5rem; color: var(--mid); line-height: 2;">
+        <li>Vuoi una toolbar più visibile su schermi grandi</li>
+        <li>Hai problemi di visibilità dei pulsanti</li>
+        <li>Preferisci un'interfaccia più ingrandita</li>
+      </ul>
+    </div>
+    <div class="feature-visual">
+      <img src="resizebuttons.png" alt="Button Zoom">
+    </div>
+  </div>
+</section>
+
+<section class="nav-buttons-section">
+  <div class="section-label">Modalità</div>
+  <h2>Doppia <em>Pagina</em></h2>
+  
+  <div class="nav-buttons-grid">
+    <div>
+      <h3>Layout Libro Aperto</h3>
+      <p>La modalità Doppia Pagina mostra due pagine affiancate, simulando un libro aperto. Ideale per schermi larghi e un'esperienza di lettura più tradizionale.</p>
+      <ul style="margin-top: 1rem; margin-left: 1.5rem; color: var(--mid); line-height: 2;">
+        <li>Attivazione <strong>automatica</strong> su schermi >1024px</li>
+        <li>Disattivazione <strong>automatica</strong> in scroll mode</li>
+        <li>Passaggio a <strong>pagina singola</strong> su schermi più piccoli</li>
+      </ul>
+    </div>
+    <div class="feature-visual">
+      <img src="doublepage.png" alt="Doppia Pagina">
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2>Pronto a <em>leggere</em>?</h2>
+  <p>Importa i tuoi libri e scegli la modalità di navigazione che preferisci.</p>
+  <div class="cta-buttons">
+    <a href="index.html" class="btn-primary">← Torna alla Home</a>
+    <a href="settings.html" class="btn-secondary">Scopri le Settings →</a>
+  </div>
+</section>
+
+<footer>
+  <div>MIT License · Vanilla JS · No Server</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a> ·
+    <a href="navigation.html">Navigazione</a> ·
+    <a href="settings.html">Impostazioni</a> ·
+    <a href="faq.html">FAQ</a>
+  </div>
+</footer>
+
+</body>
+</html>

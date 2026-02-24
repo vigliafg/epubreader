@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extract Chapter - EPUB Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0b;
+    --paper: #f7f4ee;
+    --cream: #ede8dc;
+    --accent: #c8410a;
+    --accent2: #1a4a8a;
+    --gold: #c4922a;
+    --mid: #7a7060;
+    --border: rgba(15,14,11,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 4vw;
+    position: relative;
+    z-index: 10;
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+  }
+
+  .nav-logo:hover { color: var(--ink); }
+
+  .nav-logo span {
+    width: 28px;
+    height: 28px;
+    background: var(--ink);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--paper);
+    font-size: 14px;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .nav-link {
+    padding: 0.5rem 0.8rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: var(--ink);
+    background: var(--cream);
+  }
+
+  .nav-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+    margin-left: 1rem;
+  }
+
+  .hero {
+    min-height: 45vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    position: relative;
+    overflow: hidden;
+    padding: 4rem 4vw;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -8vw;
+    top: 5vh;
+    width: 45vw;
+    height: 70vh;
+    background: var(--cream);
+    border-radius: 2px;
+    z-index: 0;
+    transform: rotate(2deg);
+  }
+
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: center;
+    position: relative;
+    z-index: 5;
+  }
+
+  .hero-text { padding-right: 4vw; }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.5rem, 4.5vw, 4.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  h1 em { font-style: italic; color: var(--accent); }
+
+  .hero-desc {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--mid);
+    max-width: 480px;
+    font-weight: 300;
+  }
+
+  .hero-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 2vw;
+  }
+
+  .screenshot-frame {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(15,14,11,0.18), 0 8px 20px rgba(15,14,11,0.1);
+  }
+
+  .screenshot-frame img { width: 100%; display: block; }
+
+  section { padding: 5rem 4vw; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  h2 em { font-style: italic; color: var(--accent); }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--mid);
+    font-weight: 300;
+  }
+
+  /* ── EXTRACT OPTIONS ── */
+  .extract-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 4vw;
+  }
+
+  .extract-section .section-label { color: rgba(247,244,238,0.4); }
+  .extract-section h2 { color: var(--paper); }
+  .extract-section p { color: rgba(247,244,238,0.5); }
+
+  .extract-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 2rem;
+    align-items: start;
+  }
+
+  .extract-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .extract-option {
+    background: rgba(247,244,238,0.05);
+    border: 1px solid rgba(247,244,238,0.1);
+    border-radius: 4px;
+    padding: 1.2rem 1.5rem;
+    transition: all 0.2s;
+  }
+
+  .extract-option:hover {
+    background: rgba(247,244,238,0.08);
+    border-color: var(--accent);
+  }
+
+  .extract-option-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+
+  .extract-option h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--paper);
+    margin-bottom: 0.4rem;
+  }
+
+  .extract-option p {
+    font-size: 0.82rem;
+    color: rgba(247,244,238,0.5);
+    line-height: 1.5;
+  }
+
+  .extract-visual {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+
+  .extract-visual img { width: 100%; display: block; }
+
+  /* ── COLLECTION SECTION ── */
+  .collection-section { padding: 5rem 4vw; }
+
+  .collection-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 2rem;
+    align-items: start;
+  }
+
+  .collection-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .collection-feature {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.2rem 1.5rem;
+  }
+
+  .collection-feature h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .collection-feature p {
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .counter-badge {
+    background: var(--accent);
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    margin-left: auto;
+  }
+
+  .collection-visual {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15,14,11,0.15);
+  }
+
+  .collection-visual img { width: 100%; display: block; }
+
+  /* ── EXPORT SECTION ── */
+  .export-section {
+    background: var(--cream);
+    padding: 5rem 4vw;
+  }
+
+  .export-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .export-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .export-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(15,14,11,0.1);
+    border-color: var(--accent);
+  }
+
+  .export-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .export-card h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  .export-card p {
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .export-note {
+    margin-top: 2rem;
+    padding: 1rem 1.5rem;
+    background: rgba(200,65,10,0.05);
+    border: 1px solid rgba(200,65,10,0.2);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--mid);
+    line-height: 1.6;
+  }
+
+  /* ── EDITOR SECTION ── */
+  .editor-section { padding: 5rem 4vw; }
+
+  .editor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 2rem;
+    align-items: start;
+  }
+
+  .editor-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .editor-feature {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.2rem 1.5rem;
+  }
+
+  .editor-feature h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  .editor-feature p {
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .editor-visual {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15,14,11,0.15);
+  }
+
+  .editor-visual img { width: 100%; display: block; }
+
+  /* ── CTA ── */
+  .cta-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 4vw;
+    text-align: center;
+  }
+
+  .cta-section h2 { color: var(--paper); margin-bottom: 1rem; }
+  .cta-section p { color: rgba(247,244,238,0.5); margin-bottom: 2rem; }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    padding: 0.9rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .btn-primary:hover { background: #e04d0e; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--paper);
+    padding: 0.9rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(247,244,238,0.3);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .btn-secondary:hover { border-color: var(--paper); background: rgba(247,244,238,0.05); }
+
+  footer {
+    background: #07070a;
+    color: rgba(247,244,238,0.35);
+    padding: 2rem 4vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+
+  footer a {
+    color: rgba(247,244,238,0.5);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  footer a:hover { color: var(--paper); }
+
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .hero-content { grid-template-columns: 1fr; gap: 2rem; }
+    .hero::after { display: none; }
+    .hero-text { padding-right: 0; }
+    .extract-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .collection-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .export-grid { grid-template-columns: 1fr 1fr; }
+    .editor-grid { grid-template-columns: 1fr; gap: 2rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 2.2rem; }
+    .export-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <span>📚</span>
+    EPUB Reader
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="navigation.html" class="nav-link">Navigazione</a>
+    <a href="settings.html" class="nav-link">Impostazioni</a>
+    <a href="bookmark.html" class="nav-link">Segnalibri</a>
+    <a href="extractchapter.html" class="nav-link active">Estrai</a>
+    <a href="htmleditor.html" class="nav-link">Editor</a>
+    <a href="helpers.html" class="nav-link">Helper</a>
+    <a href="faq.html" class="nav-link">FAQ</a>
+  </div>
+  <div class="nav-badge">MIT License</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-eyebrow">Estrazione</div>
+      <h1>Estrai il <em>capitolo</em></h1>
+      <p class="hero-desc">
+        Estrai singoli capitoli o interi rami gerarchici dal tuo EPUB. Aprili in finestre separate con toolbar completa e opzioni di export.
+      </p>
+    </div>
+    <div class="hero-visual">
+      <div class="screenshot-frame">
+        <img src="chapters.png" alt="Extract Chapter">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="extract-section">
+  <div class="section-label">Dropdown</div>
+  <h2>Opzioni di <em>Estrazione</em></h2>
+  
+  <div class="extract-grid">
+    <div class="extract-options">
+      <div class="extract-option">
+        <div class="extract-option-icon">📄</div>
+        <h4>Solo il Capitolo Corrente</h4>
+        <p>Estrai solo il capitolo attualmente visualizzato. Ideale per lettura focalizzata, traduzione rapida o citazioni.</p>
+      </div>
+      
+      <div class="extract-option">
+        <div class="extract-option-icon">🌿</div>
+        <h4>Corrente + Tutti i Sottolivelli</h4>
+        <p>Estrai l'intero ramo della struttura TOC: capitolo corrente più tutti i sotto-capitoli annidati, uniti in un unico documento.</p>
+      </div>
+    </div>
+    
+    <div class="extract-visual">
+      <img src="chapters.png" alt="Extract Chapter Dropdown">
+    </div>
+  </div>
+</section>
+
+<section class="collection-section">
+  <div class="section-label">Chunks</div>
+  <h2>Sistema di <em>Raccolta</em></h2>
+  
+  <div class="collection-intro">
+    <h4>📦 Cos'è una Collezione?</h4>
+    <p>Una collezione è un contenitore temporaneo che raccoglie porzioni di contenuto (testo e immagini) mentre leggi. I <strong>chunks</strong> ti permettono di: creare riassunti personalizzati, estrarre citazioni importanti, collezionare immagini e grafici, assemblare report di studio.</p>
+  </div>
+  
+  <div class="collection-grid">
+    <div class="collection-features">
+      <div class="collection-feature">
+        <h4>📋 Raccolta Automatica <span class="counter-badge">Ctrl+C</span></h4>
+        <p>Seleziona testo o immagini nel capitolo estratto e premi Ctrl+C. Il contenuto viene automaticamente aggiunto alla collezione.</p>
+      </div>
+      
+      <div class="collection-feature">
+        <h4>➕ Raccolta Manuale</h4>
+        <p>Seleziona il contenuto e clicca sul pulsante "Add Selection". Una notifica conferma l'aggiunta con il numero di chunks.</p>
+      </div>
+      
+      <div class="collection-feature">
+        <h4>🗑️ Clear Collection</h4>
+        <p>Svuota la collezione con il pulsante "Clear Collection". Richiede conferma prima di rimuovere tutti i chunks.</p>
+      </div>
+      
+      <div class="collection-feature">
+        <h4>🔢 Chunk Counter <span class="counter-badge">0</span></h4>
+        <p>Il badge nella toolbar mostra sempre il numero di chunks raccolti. Si aggiorna in tempo reale ad ogni operazione.</p>
+      </div>
+    </div>
+    
+    <div class="collection-visual">
+      <img src="collection.png" alt="Collection System">
+    </div>
+  </div>
+</section>
+
+<section class="export-section">
+  <div class="section-label">Export</div>
+  <h2>Esporta il <em>Contenuto</em></h2>
+  
+  <div class="export-grid">
+    <div class="export-card">
+      <span class="export-icon">🖨️</span>
+      <h4>Print / Save PDF</h4>
+      <p>Stampa nativa del browser con CSS ottimizzati. Salva come PDF dal dialog.</p>
+    </div>
+    
+    <div class="export-card">
+      <span class="export-icon">📝</span>
+      <h4>Save as DOCX</h4>
+      <p>Esporta il capitolo in formato Word con download automatico.</p>
+    </div>
+    
+    <div class="export-card">
+      <span class="export-icon">📖</span>
+      <h4>PDF Viewer</h4>
+      <p>Apre Mozilla PDF.js in una nuova tab per visualizzazione avanzata.</p>
+    </div>
+    
+    <div class="export-card">
+      <span class="export-icon">🌍</span>
+      <h4>Traduzione</h4>
+      <p>Click destro → Traduci per tradurre l'intero capitolo nella tua lingua.</p>
+    </div>
+  </div>
+  
+  <div class="export-note">
+    <strong>💡 Suggerimento:</strong> Tutte le immagini sono salvate come base64 inline, quindi il documento esportato è completamente standalone e non richiede risorse esterne.
+  </div>
+</section>
+
+<section class="editor-section">
+  <div class="section-label">Editor</div>
+  <h2>Lancia l'<em>Editor</em></h2>
+  
+  <div class="editor-grid">
+    <div class="editor-features">
+      <div class="editor-feature">
+        <h4>📦 Dalla Collezione</h4>
+        <p>Carica tutti i chunks raccolti nell'editor WYSIWYG. Organizza, modifica e formatta il contenuto come preferisci.</p>
+      </div>
+      
+      <div class="editor-feature">
+        <h4>📖 Dal Capitolo</h4>
+        <p>Carica l'intero contenuto del capitolo estratto nell'editor per modifiche dirette sul testo.</p>
+      </div>
+      
+      <div class="editor-feature">
+        <h4>✏️ Editor WYSIWYG</h4>
+        <p>Editor custom basato su contenteditable con toolbar completa: formattazione, tabelle, immagini e export.</p>
+      </div>
+    </div>
+    
+    <div class="editor-visual">
+      <img src="collection.png" alt="Launch Editor">
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2>Estrai e <em>lavora</em></h2>
+  <p>Raccolta chunks, crea il tuo report e esportalo nel formato che preferisci.</p>
+  <div class="cta-buttons">
+    <a href="index.html" class="btn-primary">← Torna alla Home</a>
+    <a href="htmleditor.html" class="btn-secondary">Scopri l'Editor →</a>
+  </div>
+</section>
+
+<footer>
+  <div>MIT License · Vanilla JS · No Server</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a> ·
+    <a href="extractchapter.html">Estrai</a> ·
+    <a href="htmleditor.html">Editor</a> ·
+    <a href="helpers.html">Helper</a>
+  </div>
+</footer>
+
+</body>
+</html>

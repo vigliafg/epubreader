@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ - EPUB Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0b;
+    --paper: #f7f4ee;
+    --cream: #ede8dc;
+    --accent: #c8410a;
+    --accent2: #1a4a8a;
+    --gold: #c4922a;
+    --mid: #7a7060;
+    --border: rgba(15,14,11,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 4vw;
+    position: relative;
+    z-index: 10;
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+  }
+
+  .nav-logo:hover { color: var(--ink); }
+
+  .nav-logo span {
+    width: 28px;
+    height: 28px;
+    background: var(--ink);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--paper);
+    font-size: 14px;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .nav-link {
+    padding: 0.5rem 0.8rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: var(--ink);
+    background: var(--cream);
+  }
+
+  .nav-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+    margin-left: 1rem;
+  }
+
+  .hero {
+    min-height: 35vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    position: relative;
+    overflow: hidden;
+    padding: 4rem 4vw;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -8vw;
+    top: 5vh;
+    width: 45vw;
+    height: 60vh;
+    background: var(--cream);
+    border-radius: 2px;
+    z-index: 0;
+    transform: rotate(2deg);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 5;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.5rem, 4.5vw, 4.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1rem;
+  }
+
+  h1 em { font-style: italic; color: var(--accent); }
+
+  section { padding: 4rem 4vw; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  h2 em { font-style: italic; color: var(--accent); }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--mid);
+    font-weight: 300;
+  }
+
+  /* ── FAQ GRID ── */
+  .faq-section { padding: 4rem 4vw; }
+
+  .faq-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    max-width: 900px;
+  }
+
+  .faq-item {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .faq-question {
+    padding: 1.2rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+  }
+
+  .faq-question:hover {
+    background: var(--cream);
+  }
+
+  .faq-icon {
+    font-size: 1rem;
+    color: var(--accent);
+    transition: transform 0.2s;
+  }
+
+  .faq-item.open .faq-icon {
+    transform: rotate(45deg);
+  }
+
+  .faq-answer {
+    padding: 0 1.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .faq-item.open .faq-answer {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    max-height: 500px;
+  }
+
+  .faq-answer p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .faq-answer code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    background: var(--cream);
+    padding: 0.15rem 0.4rem;
+    border-radius: 2px;
+    color: var(--accent);
+  }
+
+  /* ── WORKAROUND SECTION ── */
+  .workaround-section {
+    background: var(--cream);
+    padding: 4rem 4vw;
+  }
+
+  .workaround-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .workaround-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+  }
+
+  .workaround-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .workaround-card p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ── PLATFORM SECTION ── */
+  .platform-section { padding: 4rem 4vw; }
+
+  .platform-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .platform-table th,
+  .platform-table td {
+    padding: 1rem 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .platform-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--cream);
+    color: var(--mid);
+  }
+
+  .platform-table td {
+    font-size: 0.9rem;
+  }
+
+  .platform-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .status-badge.success { color: #16a34a; }
+  .status-badge.warning { color: #ca8a04; }
+  .status-badge.error { color: #dc2626; }
+
+  /* ── COMPAT SECTION ── */
+  .compat-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 4rem 4vw;
+  }
+
+  .compat-section .section-label { color: rgba(247,244,238,0.4); }
+  .compat-section h2 { color: var(--paper); }
+  .compat-section p { color: rgba(247,244,238,0.5); }
+
+  .compat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .compat-card {
+    background: rgba(247,244,238,0.05);
+    border: 1px solid rgba(247,244,238,0.1);
+    border-radius: 4px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .compat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .compat-card h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--paper);
+    margin-bottom: 0.5rem;
+  }
+
+  .compat-card p {
+    font-size: 0.8rem;
+    color: rgba(247,244,238,0.45);
+    line-height: 1.5;
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 4rem 4vw;
+    text-align: center;
+  }
+
+  .cta-section h2 { color: var(--paper); margin-bottom: 1rem; }
+  .cta-section p { color: rgba(247,244,238,0.5); margin-bottom: 2rem; }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    padding: 0.9rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .btn-primary:hover { background: #e04d0e; transform: translateY(-1px); }
+
+  footer {
+    background: #07070a;
+    color: rgba(247,244,238,0.35);
+    padding: 2rem 4vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+
+  footer a {
+    color: rgba(247,244,238,0.5);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  footer a:hover { color: var(--paper); }
+
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .workaround-grid { grid-template-columns: 1fr; }
+    .platform-table { display: block; overflow-x: auto; }
+    .compat-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <span>📚</span>
+    EPUB Reader
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="navigation.html" class="nav-link">Navigazione</a>
+    <a href="settings.html" class="nav-link">Impostazioni</a>
+    <a href="bookmark.html" class="nav-link">Segnalibri</a>
+    <a href="extractchapter.html" class="nav-link">Estrai</a>
+    <a href="htmleditor.html" class="nav-link">Editor</a>
+    <a href="helpers.html" class="nav-link">Helper</a>
+    <a href="faq.html" class="nav-link active">FAQ</a>
+  </div>
+  <div class="nav-badge">MIT License</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Supporto</div>
+    <h1>Domande <em>Frequenti</em></h1>
+  </div>
+</section>
+
+<section class="faq-section">
+  <div class="section-label">FAQ</div>
+  <h2>Risposte alle <em>domande comuni</em></h2>
+  
+  <div class="faq-grid">
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span>Il libro non si carica correttamente</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Verifica che il file EPUB sia valido. Puoi controllare IndexedDB in DevTools → Application → Storage → IndexedDB → EpubLibraryDB → books per vedere se il libro è stato salvato correttamente.</p>
+      </div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span>La posizione di lettura non viene salvata</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Usa il pulsante <strong>Save State</strong> (icona floppy) per salvare esplicitamente le preferenze. Verifica in DevTools → Application → Storage → Local Storage le chiavi <code>epub-[bookTitle]-position</code>.</p>
+      </div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span>L'export PDF fallisce</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Verifica la connessione internet (le librerie CDN sono necessarie). Controlla la console del browser per errori CORS. Prova la stampa diretta tramite il pulsante Print come alternativa.</p>
+      </div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span>La sidebar TOC non si apre</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Verifica che il TOC sia popolato aprendo la console del browser e controllando <code>book.navigation.toc</code>. Alcuni EPUB non hanno un indice dei contenuti definito.</p>
+      </div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span>Come funziona la traduzione?</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Click destro su qualsiasi testo → "Traduci in [lingua]". Il browser utilizza il servizio di traduzione integrato (Google Translate, Microsoft Translator, ecc.). La traduzione avviene direttamente nel browser senza invio a server terzi.</p>
+      </div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span>Quali formati di immagine supporta l'editor?</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>L'editor supporta JPG, PNG, GIF, WebP e SVG. Le immagini vengono convertite in base64 inline per renderle completamente standalone nel documento esportato.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="workaround-section">
+  <div class="section-label">Workaround</div>
+  <h2>Soluzioni ai <em>problemi comuni</em></h2>
+  
+  <div class="workaround-grid">
+    <div class="workaround-card">
+      <h3>⚠️ CORS con server locale</h3>
+      <p>Se apri il file direttamente dal filesystem, alcune funzionalità potrebbero non funzionare. Usa un server locale: <code>python -m http.server 8000</code> nella cartella del progetto.</p>
+    </div>
+    
+    <div class="workaround-card">
+      <h3>⚠️ IndexedDB piena</h3>
+      <p>Se la libreria è piena, elimina alcuni libri. Controlla lo spazio usato in DevTools → Application → Storage. La quota tipica è 50-100MB.</p>
+    </div>
+    
+    <div class="workaround-card">
+      <h3>⚠️ Traduzione non disponibile</h3>
+      <p>Alcuni browser non supportano la traduzione integrata. Su Chrome/Edge funziona automaticamente. La traduzione richiede connessione internet.</p>
+    </div>
+    
+    <div class="workaround-card">
+      <h3>⚠️ Immagini non visualizzate</h3>
+      <p>Alcuni EPUB usano path relativi non standard. Prova ad estrarre il capitolo: le immagini dovrebbero apparire correttamente nel documento standalone.</p>
+    </div>
+  </div>
+</section>
+
+<section class="platform-section">
+  <div class="section-label">Compatibilità</div>
+  <h2>Browser <em>Supportati</em></h2>
+  
+  <table class="platform-table">
+    <thead>
+      <tr>
+        <th>Browser</th>
+        <th>Versione Minima</th>
+        <th>Stato</th>
+        <th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Chrome</td>
+        <td>90+</td>
+        <td><span class="status-badge success">✓ Supportato</span></td>
+        <td>Traduzione integrata completa</td>
+      </tr>
+      <tr>
+        <td>Firefox</td>
+        <td>88+</td>
+        <td><span class="status-badge success">✓ Supportato</span></td>
+        <td>Funzionalità complete</td>
+      </tr>
+      <tr>
+        <td>Safari</td>
+        <td>14+</td>
+        <td><span class="status-badge warning">⚠ Parziale</span></td>
+        <td>IndexedDB con limitazioni storage</td>
+      </tr>
+      <tr>
+        <td>Edge</td>
+        <td>90+</td>
+        <td><span class="status-badge success">✓ Supportato</span></td>
+        <td>Basato su Chromium</td>
+      </tr>
+      <tr>
+        <td>Opera</td>
+        <td>76+</td>
+        <td><span class="status-badge success">✓ Supportato</span></td>
+        <td>Basato su Chromium</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="compat-section">
+  <div class="section-label">Tecnologia</div>
+  <h2>API Browser <em>Utilizzate</em></h2>
+  
+  <div class="compat-grid">
+    <div class="compat-card">
+      <span class="compat-icon">💾</span>
+      <h4>IndexedDB</h4>
+      <p>Storage persistente della libreria EPUB</p>
+    </div>
+    
+    <div class="compat-card">
+      <span class="compat-icon">📋</span>
+      <h4>Clipboard API</h4>
+      <p>Cattura automatica selezioni per chunks</p>
+    </div>
+    
+    <div class="compat-card">
+      <span class="compat-icon">🖼️</span>
+      <h4>Canvas API</h4>
+      <p>Conversione HTML→Image per PDF export</p>
+    </div>
+    
+    <div class="compat-card">
+      <span class="compat-icon">🌐</span>
+      <h4>Translation API</h4>
+      <p>Traduzione integrata del browser</p>
+    </div>
+    
+    <div class="compat-card">
+      <span class="compat-icon">🖨️</span>
+      <h4>Print API</h4>
+      <p>Stampa e salvataggio PDF nativi</p>
+    </div>
+    
+    <div class="compat-card">
+      <span class="compat-icon">📁</span>
+      <h4>FileReader API</h4>
+      <p>Import file EPUB e immagini</p>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2>Hai ancora <em>domande</em>?</h2>
+  <p>Se non hai trovato la risposta che cercavi, contattaci o apri una issue su GitHub.</p>
+  <a href="index.html" class="btn-primary">← Torna alla Home</a>
+</section>
+
+<footer>
+  <div>MIT License · Vanilla JS · No Server</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a> ·
+    <a href="faq.html">FAQ</a>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-question').forEach(q => {
+    q.addEventListener('click', () => {
+      q.parentElement.classList.toggle('open');
+    });
+  });
+</script>
+
+</body>
+</html>
