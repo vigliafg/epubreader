@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bookmark - EPUB Reader</title>
+<title>Note - EPUB Reader</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -155,7 +155,7 @@
   .mobile-menu .nav-link:hover, .mobile-menu .nav-link.active { background: none; color: var(--accent); }
 
   .hero {
-    min-height: 45vh;
+    min-height: 35vh;
     display: grid;
     grid-template-rows: auto 1fr;
     position: relative;
@@ -227,25 +227,7 @@
     font-weight: 300;
   }
 
-  .hero-visual {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-left: 2vw;
-  }
-
-  .screenshot-frame {
-    width: 100%;
-    max-width: 500px;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 40px 80px rgba(15,14,11,0.18), 0 8px 20px rgba(15,14,11,0.1);
-  }
-
-  .screenshot-frame img { width: 100%; display: block; }
-
-  section { padding: 5rem 4vw; }
+  section { padding: 4rem 4vw; }
 
   .section-label {
     font-family: 'DM Mono', monospace;
@@ -293,89 +275,118 @@
     font-weight: 300;
   }
 
-  /* ── TOC SECTION ── */
-  .toc-section {
-    background: var(--cream);
-    padding: 5rem 4vw;
-  }
-
-  .toc-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: start;
-  }
-
-  .toc-list {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1.5rem;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .toc-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.8rem;
-    padding: 0.6rem 0;
+  .note-section {
     border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: all 0.2s;
   }
 
-  .toc-item:last-child { border-bottom: none; }
-
-  .toc-item:hover {
-    color: var(--accent);
-    padding-left: 0.5rem;
+  .note-section:last-child {
+    border-bottom: none;
   }
 
-  .toc-icon {
-    font-size: 0.8rem;
-    color: var(--mid);
-    min-width: 16px;
-  }
-
-  .toc-item.level-1 { font-weight: 600; padding-left: 0; }
-  .toc-item.level-2 { padding-left: 1rem; font-size: 0.95rem; }
-  .toc-item.level-3 { padding-left: 2rem; font-size: 0.9rem; color: var(--mid); }
-
-  .toc-visual {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(15,14,11,0.15);
-  }
-
-  .toc-visual img { width: 100%; display: block; }
-
-  /* ── BOOKMARKS SECTION ── */
-  .bookmarks-section { padding: 5rem 4vw; }
-
-  .bookmarks-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    margin-top: 2rem;
-    align-items: start;
-  }
-
-  .bookmark-features {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .bookmark-feature {
+  .changelog-item {
     background: white;
     border: 1px solid var(--border);
     border-radius: 4px;
-    padding: 1.5rem;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1rem;
   }
 
-  .bookmark-feature h4 {
+  .changelog-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .changelog-version {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .changelog-version .date {
+    font-weight: 400;
+    color: var(--mid);
+  }
+
+  .changelog-item ul {
+    margin: 0.5rem 0 0 1.2rem;
+    color: var(--mid);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .changelog-item li {
+    margin-bottom: 0.3rem;
+  }
+
+  .issue-item {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .issue-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .issue-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .issue-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .issue-status.open {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .issue-status.closed {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+
+  .issue-status.wip {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
+  .issue-title {
+    font-weight: 600;
     font-size: 0.95rem;
+  }
+
+  .issue-item p {
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .tip-box {
+    background: var(--cream);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .tip-box:last-child {
+    margin-bottom: 0;
+  }
+
+  .tip-box h4 {
+    font-size: 1rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
     display: flex;
@@ -383,147 +394,16 @@
     gap: 0.5rem;
   }
 
-  .bookmark-feature p {
-    font-size: 0.85rem;
+  .tip-box ul {
+    margin: 0.5rem 0 0 1.2rem;
+    color: var(--mid);
+    font-size: 0.9rem;
     line-height: 1.6;
   }
 
-  .bookmark-badge {
-    background: var(--accent);
-    color: white;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    padding: 0.15rem 0.4rem;
-    border-radius: 10px;
-    margin-left: auto;
+  .tip-box li {
+    margin-bottom: 0.3rem;
   }
-
-  .bookmark-visual {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(15,14,11,0.15);
-  }
-
-  .bookmark-visual img { width: 100%; display: block; }
-
-  /* ── SAVESTATE SECTION ── */
-  .savestate-section {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 5rem 4vw;
-  }
-
-  .savestate-section .section-label { color: rgba(247,244,238,0.4); }
-  .savestate-section h2 { color: var(--paper); }
-  .savestate-section p { color: rgba(247,244,238,0.5); }
-
-  .savestate-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    margin-top: 2rem;
-    align-items: start;
-  }
-
-  .savestate-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .savestate-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    background: rgba(247,244,238,0.05);
-    border: 1px solid rgba(247,244,238,0.1);
-    border-radius: 4px;
-    padding: 1rem 1.2rem;
-  }
-
-  .savestate-icon {
-    font-size: 1.2rem;
-    flex-shrink: 0;
-  }
-
-  .savestate-item h4 {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--paper);
-    margin-bottom: 0.2rem;
-  }
-
-  .savestate-item p {
-    font-size: 0.8rem;
-    color: rgba(247,244,238,0.45);
-    line-height: 1.5;
-  }
-
-  .savestate-visual {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-  }
-
-  .savestate-visual img { width: 100%; display: block; }
-
-  /* ── CTA ── */
-  .cta-section {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 5rem 4vw;
-    text-align: center;
-  }
-
-  .cta-section h2 { color: var(--paper); margin-bottom: 1rem; }
-  .cta-section p { color: rgba(247,244,238,0.5); margin-bottom: 2rem; }
-
-  .cta-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-    padding: 0.9rem 2rem;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
-    border-radius: 2px;
-  }
-
-  .btn-primary:hover { background: #e04d0e; transform: translateY(-1px); }
-
-  .btn-secondary {
-    background: transparent;
-    color: var(--paper);
-    padding: 0.9rem 2rem;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    border: 1px solid rgba(247,244,238,0.3);
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
-    border-radius: 2px;
-  }
-
-  .btn-secondary:hover { border-color: var(--paper); background: rgba(247,244,238,0.05); }
 
   footer {
     background: #07070a;
@@ -565,13 +445,6 @@
     .hero-text { padding-right: 0; }
     .hero-eyebrow { justify-content: center; }
     .hero-desc { max-width: 100%; }
-    .screenshot-frame img { width: 100%; height: auto; }
-    .toc-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .toc-grid img { width: 100%; height: auto; }
-    .bookmarks-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .bookmarks-grid img { width: 100%; height: auto; }
-    .savestate-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .savestate-grid img { width: 100%; height: auto; }
     footer { flex-direction: column; gap: 1rem; text-align: center; justify-content: center; }
   }
 
@@ -580,18 +453,15 @@
     section { padding: 3rem 5vw; }
     h1 { font-size: 2rem; }
     h2 { font-size: 1.75rem; }
-    .feature-card { padding: 1.5rem; }
-    .toc-item { padding: 1rem; min-height: 44px; }
   }
 
   @media (max-width: 480px) {
     h1 { font-size: 1.75rem; }
     h2 { font-size: 1.5rem; }
-    .hero-visual { display: none; }
   }
 
   @media (hover: none) and (pointer: coarse) {
-    .nav-link, .btn-primary, .feature-card, .toc-item { min-height: 44px; }
+    .nav-link, .tip-box { min-height: 44px; }
     .hamburger { min-width: 44px; min-height: 44px; }
   }
 </style>
@@ -607,13 +477,13 @@
     <a href="index.html" class="nav-link">Home</a>
     <a href="navigation.html" class="nav-link">Navigazione</a>
     <a href="settings.html" class="nav-link">Impostazioni</a>
-    <a href="bookmark.html" class="nav-link active">Segnalibri</a>
+    <a href="bookmark.html" class="nav-link">Segnalibri</a>
     <a href="extractchapter.html" class="nav-link">Estrai</a>
     <a href="collezioni.html" class="nav-link">Collezioni</a>
     <a href="htmleditor.html" class="nav-link">Editor</a>
     <a href="helpers.html" class="nav-link">Helper</a>
     <a href="faq.html" class="nav-link">FAQ</a>
-    <a href="note.html" class="nav-link">Note</a>
+    <a href="note.html" class="nav-link active">Note</a>
   </div>
   <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
     <span></span>
@@ -627,163 +497,129 @@
   <a href="index.html" class="nav-link">Home</a>
   <a href="navigation.html" class="nav-link">Navigazione</a>
   <a href="settings.html" class="nav-link">Impostazioni</a>
-  <a href="bookmark.html" class="nav-link active">Segnalibri</a>
+  <a href="bookmark.html" class="nav-link">Segnalibri</a>
   <a href="extractchapter.html" class="nav-link">Estrai</a>
   <a href="collezioni.html" class="nav-link">Collezioni</a>
   <a href="htmleditor.html" class="nav-link">Editor</a>
   <a href="helpers.html" class="nav-link">Helper</a>
   <a href="faq.html" class="nav-link">FAQ</a>
-  <a href="note.html" class="nav-link">Note</a>
+  <a href="note.html" class="nav-link active">Note</a>
 </div>
 
 <section class="hero">
   <div class="hero-content">
     <div class="hero-text">
-      <div class="hero-eyebrow">Navigazione</div>
-      <h1>Indice e <em>Segnalibri</em></h1>
+      <div class="hero-eyebrow">Note</div>
+      <h1>Changelog, <em>Problemi</em> e Consigli</h1>
       <p class="hero-desc">
-        Naviga attraverso la struttura gerarchica del libro con la sidebar TOC e salva le tue posizioni preferite con i segnalibri personali.
+        Tutte le informazioni sulle versioni, i problemi noti e i suggerimenti per usare al meglio EPUB Reader.
       </p>
     </div>
-    <div class="hero-visual">
-      <div class="screenshot-frame">
-        <img src="userbookmark.png" alt="User Bookmarks">
-      </div>
-    </div>
   </div>
 </section>
 
-<section class="toc-section">
-  <div class="section-label">Sidebar TOC</div>
-  <h2>Indice <em>Gerarchico</em></h2>
-  
-  <div class="toc-grid">
-    <div>
-      <p>La sidebar mostra la Table of Contents (TOC) del libro con una struttura gerarchica espandibile fino a 3 livelli di profondità.</p>
-      
-      <div class="toc-list" style="margin-top: 1.5rem;">
-        <div class="toc-item level-1">
-          <span class="toc-icon">▸</span>
-          <span>Prefazione</span>
-        </div>
-        <div class="toc-item level-1">
-          <span class="toc-icon">▾</span>
-          <span>Capitolo 1 - Introduzione</span>
-        </div>
-        <div class="toc-item level-2">
-          <span class="toc-icon">▸</span>
-          <span>1.1 Contesto Storico</span>
-        </div>
-        <div class="toc-item level-2">
-          <span class="toc-icon">▸</span>
-          <span>1.2 Definizioni</span>
-        </div>
-        <div class="toc-item level-3">
-          <span class="toc-icon">•</span>
-          <span>1.2.1 Termini Chiave</span>
-        </div>
-        <div class="toc-item level-1">
-          <span class="toc-icon">▸</span>
-          <span>Capitolo 2 - Analisi</span>
-        </div>
-        <div class="toc-item level-1">
-          <span class="toc-icon">▸</span>
-          <span>Conclusioni</span>
-        </div>
-      </div>
-      
-      <ul style="margin-top: 1.5rem; margin-left: 1.5rem; color: var(--mid); line-height: 2;">
-        <li><strong>▸</strong> = Elemento espandibile (ha sottolivelli)</li>
-        <li><strong>▾</strong> = Elemento attualmente espanso</li>
-        <li><strong>•</strong> = Elemento foglia (senza sottolivelli)</li>
-      </ul>
-    </div>
-    
-    <div class="toc-visual">
-      <img src="openbook.png" alt="Sidebar TOC">
-    </div>
+<section class="note-section">
+  <div class="section-label">Storia</div>
+  <h2>Changelog</h2>
+
+  <div class="changelog-item">
+    <div class="changelog-version">v6.5.2 <span class="date">· Febbraio 2026</span></div>
+    <ul>
+      <li>Aggiunto sistema di raccolta chunks per testo, immagini e tabelle</li>
+      <li>Nueva pagina Collezioni con funzionalità di ispezione</li>
+      <li>Corretto click destro → click per immagini e tabelle</li>
+      <li>Migliorata responsività su tutti i dispositivi</li>
+    </ul>
+  </div>
+
+  <div class="changelog-item">
+    <div class="changelog-version">v6.4.6 <span class="date">· Gennaio 2026</span></div>
+    <ul>
+      <li>Prima versione pubblica stabile</li>
+      <li>Reader EPUB con navigazione avanzata</li>
+      <li>Sistema di estrazione capitoli</li>
+      <li>Editor HTML integrato</li>
+      <li>Helper tools vari</li>
+    </ul>
   </div>
 </section>
 
-<section class="bookmarks-section">
-  <div class="section-label">Segnalibri</div>
-  <h2>Segnalibri <em>Personali</em></h2>
-  
-  <div class="bookmarks-grid">
-    <div class="bookmark-features">
-      <div class="bookmark-feature">
-        <h4>🔖 User Bookmarks <span class="bookmark-badge">Nuovo</span></h4>
-        <p>Click sul pulsante "User Bookmarks" nella toolbar per aprire il cassetto laterale. Da qui puoi creare nuovi segnalibri per la posizione corrente e visualizzare quelli salvati.</p>
-      </div>
-      
-      <div class="bookmark-feature">
-        <h4>➕ Nuovo Segnalibro</h4>
-        <p>Premi "New Bookmark" per salvare la posizione di lettura corrente. Ogni segnalibro mostra il titolo del capitolo e può essere eliminato singolarmente.</p>
-      </div>
-      
-      <div class="bookmark-feature">
-        <h4>🔢 Badge Contatore</h4>
-        <p>Il pulsante User Bookmarks mostra un badge con il numero totale di segnalibri salvati per il libro corrente. Tieni traccia di tutti i tuoi progressi!</p>
-      </div>
+<section class="note-section">
+  <div class="section-label">Problemi</div>
+  <h2>Problemi <em>Noti</em></h2>
+
+  <div class="issue-item">
+    <div class="issue-header">
+      <span class="issue-status open">OPEN</span>
+      <span class="issue-title">EPUB con CSS complessi</span>
     </div>
-    
-    <div class="bookmark-visual">
-      <img src="userbookmark.png" alt="User Bookmarks Drawer">
+    <p>Alcuni EPUB con fogli di stile molto complessi o non standard potrebbero non essere visualizzati correttamente. Stiamo lavorando per migliorare il parsing CSS.</p>
+  </div>
+
+  <div class="issue-item">
+    <div class="issue-header">
+      <span class="issue-status wip">WIP</span>
+      <span class="issue-title">Immagini grandi</span>
     </div>
+    <p>Immagini con dimensioni molto grandi (>4000px) potrebbero causare rallentamenti durante la navigazione. Soluzione in sviluppo.</p>
+  </div>
+
+  <div class="issue-item">
+    <div class="issue-header">
+      <span class="issue-status closed">CLOSED</span>
+      <span class="issue-title">Navigazione su mobile</span>
+    </div>
+    <p>Problema risolto. La navigazione ora funziona correttamente su tutti i dispositivi mobili con il menu hamburger.</p>
+  </div>
+
+  <div class="issue-item">
+    <div class="issue-header">
+      <span class="issue-status closed">CLOSED</span>
+      <span class="issue-title">Estrazione tabelle</span>
+    </div>
+    <p>Problema risolto. L'estrazione delle tabelle HTML ora funziona correttamente con struttura preservata.</p>
   </div>
 </section>
 
-<section class="savestate-section">
-  <div class="section-label">Salvataggio</div>
-  <h2>Save <em>State</em></h2>
-  
-  <div class="savestate-grid">
-    <div class="savestate-list">
-      <div class="savestate-item">
-        <div class="savestate-icon">💾</div>
-        <div>
-          <h4>Salvataggio Posizione</h4>
-          <p>Salva manualmente la posizione di lettura corrente con un click. Utile quando interrompi la lettura e vuoi riprendere esattamente da dove avevi lasciato.</p>
-        </div>
-      </div>
-      
-      <div class="savestate-item">
-        <div class="savestate-icon">⚙️</div>
-        <div>
-          <h4>Salvataggio Preferenze</h4>
-          <p>Il pulsante Save State salva anche tutte le preferenze: tema selezionato, dimensione font, interlinea, modalità di visualizzazione e impostazioni interfaccia.</p>
-        </div>
-      </div>
-      
-      <div class="savestate-item">
-        <div class="savestate-icon">📚</div>
-        <div>
-          <h4>Per Libro</h4>
-          <p>Le preferenze sono salvate specificamente per ogni libro. Ogni EPUB mantiene le proprie impostazioni separate dalle altre.</p>
-        </div>
-      </div>
-      
-      <div class="savestate-item">
-        <div class="savestate-icon">🔄</div>
-        <div>
-          <h4>Auto-Save</h4>
-          <p>La posizione di lettura viene salvata automaticamente durante la navigazione. Usa Save State per un backup completo delle preferenze.</p>
-        </div>
-      </div>
-    </div>
-    
-    <div class="savestate-visual">
-      <img src="savestate.png" alt="Save State Button">
-    </div>
-  </div>
-</section>
+<section class="note-section">
+  <div class="section-label">Guide</div>
+  <h2>Consigli <em>d'uso</em></h2>
 
-<section class="cta-section">
-  <h2>Non perdere <em>il segno</em></h2>
-  <p>Usa i segnalibri per tenere traccia dei tuoi progressi e salvare le posizioni più importanti.</p>
-  <div class="cta-buttons">
-    <a href="index.html" class="btn-primary">← Torna alla Home</a>
-    <a href="extractchapter.html" class="btn-secondary">Scopri Extract →</a>
+  <div class="tip-box">
+    <h4>📖 Lettura efficace</h4>
+    <ul>
+      <li>Usa le frecce della tastiera o i pulsanti per navigare tra i capitoli</li>
+      <li>Regola la dimensione del font nelle impostazioni per il massimo comfort</li>
+      <li>Il tema chiaro/scuro si adatta alle condizioni di luce</li>
+    </ul>
+  </div>
+
+  <div class="tip-box">
+    <h4>📦 Sistema di raccolta</h4>
+    <ul>
+      <li>Seleziona il testo e clicca "Add Selection" per aggiungere chunk di testo</li>
+      <li>Clicca direttamente su immagini o tabelle per aggiungerle alla collezione</li>
+      <li>Usa il pannello ispezione per gestire (visualizzare/rimuovere) i chunks raccolti</li>
+      <li>Invia la raccolta all'editor HTML per ulteriori elaborazioni</li>
+    </ul>
+  </div>
+
+  <div class="tip-box">
+    <h4>✏️ Editor HTML</h4>
+    <ul>
+      <li>Pulisci il codice HTML estratto rimuovendo tag inutili</li>
+      <li>Esporta il contenuto come file HTML o testo semplice</li>
+      <li>Il codice generato è ottimizzato per la pubblicazione web</li>
+    </ul>
+  </div>
+
+  <div class="tip-box">
+    <h4>🔧 Problemi comuni</h4>
+    <ul>
+      <li>Se un EPUB non si carica, verifica che non sia protetto da DRM</li>
+      <li>Per problemi di visualizzazione, prova a cambiare tema o dimensione font</li>
+      <li>Per file molto grandi, attendi qualche secondo per il caricamento completo</li>
+    </ul>
   </div>
 </section>
 

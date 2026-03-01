@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bookmark - EPUB Reader</title>
+<title>Collezioni - EPUB Reader</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -293,131 +293,30 @@
     font-weight: 300;
   }
 
-  /* ── TOC SECTION ── */
-  .toc-section {
+  /* ── COLLECTION SECTION ── */
+  .collection-section { padding: 5rem 4vw; }
+
+  .collection-intro {
     background: var(--cream);
-    padding: 5rem 4vw;
-  }
-
-  .toc-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: start;
-  }
-
-  .toc-list {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 4px;
     padding: 1.5rem;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .toc-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.8rem;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .toc-item:last-child { border-bottom: none; }
-
-  .toc-item:hover {
-    color: var(--accent);
-    padding-left: 0.5rem;
-  }
-
-  .toc-icon {
-    font-size: 0.8rem;
-    color: var(--mid);
-    min-width: 16px;
-  }
-
-  .toc-item.level-1 { font-weight: 600; padding-left: 0; }
-  .toc-item.level-2 { padding-left: 1rem; font-size: 0.95rem; }
-  .toc-item.level-3 { padding-left: 2rem; font-size: 0.9rem; color: var(--mid); }
-
-  .toc-visual {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(15,14,11,0.15);
-  }
-
-  .toc-visual img { width: 100%; display: block; }
-
-  /* ── BOOKMARKS SECTION ── */
-  .bookmarks-section { padding: 5rem 4vw; }
-
-  .bookmarks-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    margin-top: 2rem;
-    align-items: start;
-  }
-
-  .bookmark-features {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .bookmark-feature {
-    background: white;
-    border: 1px solid var(--border);
     border-radius: 4px;
-    padding: 1.5rem;
+    margin-bottom: 2rem;
   }
 
-  .bookmark-feature h4 {
-    font-size: 0.95rem;
-    font-weight: 600;
+  .collection-intro h4 {
+    font-size: 1rem;
     margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
   }
 
-  .bookmark-feature p {
-    font-size: 0.85rem;
+  .collection-intro p {
+    font-size: 0.9rem;
     line-height: 1.6;
   }
 
-  .bookmark-badge {
-    background: var(--accent);
-    color: white;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    padding: 0.15rem 0.4rem;
-    border-radius: 10px;
-    margin-left: auto;
-  }
-
-  .bookmark-visual {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(15,14,11,0.15);
-  }
-
-  .bookmark-visual img { width: 100%; display: block; }
-
-  /* ── SAVESTATE SECTION ── */
-  .savestate-section {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 5rem 4vw;
-  }
-
-  .savestate-section .section-label { color: rgba(247,244,238,0.4); }
-  .savestate-section h2 { color: var(--paper); }
-  .savestate-section p { color: rgba(247,244,238,0.5); }
-
-  .savestate-grid {
+  .collection-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
@@ -425,47 +324,50 @@
     align-items: start;
   }
 
-  .savestate-list {
+  .collection-features {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.2rem;
   }
 
-  .savestate-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    background: rgba(247,244,238,0.05);
-    border: 1px solid rgba(247,244,238,0.1);
+  .collection-feature {
+    background: white;
+    border: 1px solid var(--border);
     border-radius: 4px;
-    padding: 1rem 1.2rem;
+    padding: 1.2rem 1.5rem;
   }
 
-  .savestate-icon {
-    font-size: 1.2rem;
-    flex-shrink: 0;
-  }
-
-  .savestate-item h4 {
+  .collection-feature h4 {
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--paper);
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
-  .savestate-item p {
-    font-size: 0.8rem;
-    color: rgba(247,244,238,0.45);
+  .collection-feature p {
+    font-size: 0.82rem;
     line-height: 1.5;
   }
 
-  .savestate-visual {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  .counter-badge {
+    background: var(--accent);
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    margin-left: auto;
   }
 
-  .savestate-visual img { width: 100%; display: block; }
+  .collection-visual {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15,14,11,0.15);
+  }
+
+  .collection-visual img { width: 100%; display: block; }
 
   /* ── CTA ── */
   .cta-section {
@@ -566,12 +468,8 @@
     .hero-eyebrow { justify-content: center; }
     .hero-desc { max-width: 100%; }
     .screenshot-frame img { width: 100%; height: auto; }
-    .toc-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .toc-grid img { width: 100%; height: auto; }
-    .bookmarks-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .bookmarks-grid img { width: 100%; height: auto; }
-    .savestate-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .savestate-grid img { width: 100%; height: auto; }
+    .collection-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .collection-grid img { width: 100%; height: auto; }
     footer { flex-direction: column; gap: 1rem; text-align: center; justify-content: center; }
   }
 
@@ -580,8 +478,6 @@
     section { padding: 3rem 5vw; }
     h1 { font-size: 2rem; }
     h2 { font-size: 1.75rem; }
-    .feature-card { padding: 1.5rem; }
-    .toc-item { padding: 1rem; min-height: 44px; }
   }
 
   @media (max-width: 480px) {
@@ -591,7 +487,7 @@
   }
 
   @media (hover: none) and (pointer: coarse) {
-    .nav-link, .btn-primary, .feature-card, .toc-item { min-height: 44px; }
+    .nav-link, .btn-primary, .collection-feature { min-height: 44px; }
     .hamburger { min-width: 44px; min-height: 44px; }
   }
 </style>
@@ -607,9 +503,9 @@
     <a href="index.html" class="nav-link">Home</a>
     <a href="navigation.html" class="nav-link">Navigazione</a>
     <a href="settings.html" class="nav-link">Impostazioni</a>
-    <a href="bookmark.html" class="nav-link active">Segnalibri</a>
+    <a href="bookmark.html" class="nav-link">Segnalibri</a>
     <a href="extractchapter.html" class="nav-link">Estrai</a>
-    <a href="collezioni.html" class="nav-link">Collezioni</a>
+    <a href="collezioni.html" class="nav-link active">Collezioni</a>
     <a href="htmleditor.html" class="nav-link">Editor</a>
     <a href="helpers.html" class="nav-link">Helper</a>
     <a href="faq.html" class="nav-link">FAQ</a>
@@ -627,9 +523,9 @@
   <a href="index.html" class="nav-link">Home</a>
   <a href="navigation.html" class="nav-link">Navigazione</a>
   <a href="settings.html" class="nav-link">Impostazioni</a>
-  <a href="bookmark.html" class="nav-link active">Segnalibri</a>
+  <a href="bookmark.html" class="nav-link">Segnalibri</a>
   <a href="extractchapter.html" class="nav-link">Estrai</a>
-  <a href="collezioni.html" class="nav-link">Collezioni</a>
+  <a href="collezioni.html" class="nav-link active">Collezioni</a>
   <a href="htmleditor.html" class="nav-link">Editor</a>
   <a href="helpers.html" class="nav-link">Helper</a>
   <a href="faq.html" class="nav-link">FAQ</a>
@@ -639,151 +535,143 @@
 <section class="hero">
   <div class="hero-content">
     <div class="hero-text">
-      <div class="hero-eyebrow">Navigazione</div>
-      <h1>Indice e <em>Segnalibri</em></h1>
+      <div class="hero-eyebrow">Collezioni</div>
+      <h1>Raccogli i <em>contenuti</em></h1>
       <p class="hero-desc">
-        Naviga attraverso la struttura gerarchica del libro con la sidebar TOC e salva le tue posizioni preferite con i segnalibri personali.
+        Sistema di raccolta chunks per testo, immagini e tabelle. Ispeziona, gestisci e prepara i tuoi contenuti per l'export o l'editor.
       </p>
     </div>
     <div class="hero-visual">
       <div class="screenshot-frame">
-        <img src="userbookmark.png" alt="User Bookmarks">
+        <img src="inspectcollection.png" alt="Collezioni">
       </div>
     </div>
   </div>
 </section>
 
-<section class="toc-section">
-  <div class="section-label">Sidebar TOC</div>
-  <h2>Indice <em>Gerarchico</em></h2>
+<section class="collection-section">
+  <div class="section-label">Chunks</div>
+  <h2>Sistema di <em>Raccolta</em></h2>
   
-  <div class="toc-grid">
-    <div>
-      <p>La sidebar mostra la Table of Contents (TOC) del libro con una struttura gerarchica espandibile fino a 3 livelli di profondità.</p>
-      
-      <div class="toc-list" style="margin-top: 1.5rem;">
-        <div class="toc-item level-1">
-          <span class="toc-icon">▸</span>
-          <span>Prefazione</span>
-        </div>
-        <div class="toc-item level-1">
-          <span class="toc-icon">▾</span>
-          <span>Capitolo 1 - Introduzione</span>
-        </div>
-        <div class="toc-item level-2">
-          <span class="toc-icon">▸</span>
-          <span>1.1 Contesto Storico</span>
-        </div>
-        <div class="toc-item level-2">
-          <span class="toc-icon">▸</span>
-          <span>1.2 Definizioni</span>
-        </div>
-        <div class="toc-item level-3">
-          <span class="toc-icon">•</span>
-          <span>1.2.1 Termini Chiave</span>
-        </div>
-        <div class="toc-item level-1">
-          <span class="toc-icon">▸</span>
-          <span>Capitolo 2 - Analisi</span>
-        </div>
-        <div class="toc-item level-1">
-          <span class="toc-icon">▸</span>
-          <span>Conclusioni</span>
-        </div>
+  <div class="collection-intro">
+    <h4>📦 Cos'è una Collezione?</h4>
+    <p>Una collezione è un contenitore temporaneo che raccoglie porzioni di contenuto (testo, immagini e tabelle) mentre leggi. I <strong>chunks</strong> ti permettono di: creare riassunti personalizzati, estrarre citazioni importanti, collezionare immagini e grafici, assemblare report di studio.</p>
+  </div>
+  
+  <div class="collection-grid">
+    <div class="collection-features">
+      <div class="collection-feature">
+        <h4>➕ Raccolta Manuale</h4>
+        <p>Seleziona il contenuto e clicca sul pulsante "Add Selection". Una notifica conferma l'aggiunta con il numero di chunks.</p>
       </div>
       
-      <ul style="margin-top: 1.5rem; margin-left: 1.5rem; color: var(--mid); line-height: 2;">
-        <li><strong>▸</strong> = Elemento espandibile (ha sottolivelli)</li>
-        <li><strong>▾</strong> = Elemento attualmente espanso</li>
-        <li><strong>•</strong> = Elemento foglia (senza sottolivelli)</li>
-      </ul>
-    </div>
-    
-    <div class="toc-visual">
-      <img src="openbook.png" alt="Sidebar TOC">
+      <div class="collection-feature">
+        <h4>🗑️ Clear Collection</h4>
+        <p>Per svuotare la collezione, fai <strong>longpress</strong> (pressione prolungata) sul pulsante <strong>[+]</strong> di aggiunta selezione. Richiede conferma prima di rimuovere tutti i chunks.</p>
+      </div>
+      
+      <div class="collection-feature">
+        <h4>🔢 Chunk Counter <span class="counter-badge">0</span></h4>
+        <p>Il contatore dei chunks è visualizzato su un <strong>badge direttamente sul pulsante [+]</strong>. Si aggiorna in tempo reale ad ogni operazione.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="bookmarks-section">
-  <div class="section-label">Segnalibri</div>
-  <h2>Segnalibri <em>Personali</em></h2>
+<section class="collection-section">
+  <div class="section-label">Chunks Testo</div>
+  <h2>Selezione e Aggiunta <em>Testo</em></h2>
   
-  <div class="bookmarks-grid">
-    <div class="bookmark-features">
-      <div class="bookmark-feature">
-        <h4>🔖 User Bookmarks <span class="bookmark-badge">Nuovo</span></h4>
-        <p>Click sul pulsante "User Bookmarks" nella toolbar per aprire il cassetto laterale. Da qui puoi creare nuovi segnalibri per la posizione corrente e visualizzare quelli salvati.</p>
+  <div class="collection-grid">
+    <div class="collection-features">
+      <div class="collection-feature">
+        <h4>📝 Seleziona Testo</h4>
+        <p>Seleziona il testo desiderato nel capitolo estratto. Clicca sul pulsante "Add Selection" per aggiungerlo alla raccolta.</p>
       </div>
-      
-      <div class="bookmark-feature">
-        <h4>➕ Nuovo Segnalibro</h4>
-        <p>Premi "New Bookmark" per salvare la posizione di lettura corrente. Ogni segnalibro mostra il titolo del capitolo e può essere eliminato singolarmente.</p>
-      </div>
-      
-      <div class="bookmark-feature">
-        <h4>🔢 Badge Contatore</h4>
-        <p>Il pulsante User Bookmarks mostra un badge con il numero totale di segnalibri salvati per il libro corrente. Tieni traccia di tutti i tuoi progressi!</p>
+      <div class="collection-feature">
+        <h4>📋 Conferma Aggiunta</h4>
+        <p>Una notifica conferma l'aggiunta del chunk con il numero totale di elementi raccolti.</p>
       </div>
     </div>
-    
-    <div class="bookmark-visual">
-      <img src="userbookmark.png" alt="User Bookmarks Drawer">
+    <div class="collection-visual">
+      <img src="addtocollection.png" alt="Aggiunta chunks testo">
     </div>
   </div>
 </section>
 
-<section class="savestate-section">
-  <div class="section-label">Salvataggio</div>
-  <h2>Save <em>State</em></h2>
+<section class="collection-section">
+  <div class="section-label">Chunks Immagini</div>
+  <h2>Selezione e Aggiunta <em>Immagini</em></h2>
   
-  <div class="savestate-grid">
-    <div class="savestate-list">
-      <div class="savestate-item">
-        <div class="savestate-icon">💾</div>
-        <div>
-          <h4>Salvataggio Posizione</h4>
-          <p>Salva manualmente la posizione di lettura corrente con un click. Utile quando interrompi la lettura e vuoi riprendere esattamente da dove avevi lasciato.</p>
-        </div>
+  <div class="collection-grid">
+    <div class="collection-features">
+      <div class="collection-feature">
+        <h4>🖼️ Click Immagine</h4>
+        <p>Fai click su un'immagine nel capitolo estratto. Si aprirà una finestra di dialogo per aggiungere l'immagine alla raccolta.</p>
       </div>
-      
-      <div class="savestate-item">
-        <div class="savestate-icon">⚙️</div>
-        <div>
-          <h4>Salvataggio Preferenze</h4>
-          <p>Il pulsante Save State salva anche tutte le preferenze: tema selezionato, dimensione font, interlinea, modalità di visualizzazione e impostazioni interfaccia.</p>
-        </div>
-      </div>
-      
-      <div class="savestate-item">
-        <div class="savestate-icon">📚</div>
-        <div>
-          <h4>Per Libro</h4>
-          <p>Le preferenze sono salvate specificamente per ogni libro. Ogni EPUB mantiene le proprie impostazioni separate dalle altre.</p>
-        </div>
-      </div>
-      
-      <div class="savestate-item">
-        <div class="savestate-icon">🔄</div>
-        <div>
-          <h4>Auto-Save</h4>
-          <p>La posizione di lettura viene salvata automaticamente durante la navigazione. Usa Save State per un backup completo delle preferenze.</p>
-        </div>
+      <div class="collection-feature">
+        <h4>🔢 Immagini in Raccolta</h4>
+        <p>Le immagini vengono salvate come base64 e contate nel chunk counter insieme al testo.</p>
       </div>
     </div>
-    
-    <div class="savestate-visual">
-      <img src="savestate.png" alt="Save State Button">
+    <div class="collection-visual">
+      <img src="addtocollectionimage.png" alt="Aggiunta chunks immagini">
+    </div>
+  </div>
+</section>
+
+<section class="collection-section">
+  <div class="section-label">Chunks Tabelle</div>
+  <h2>Selezione e Aggiunta <em>Tabelle</em></h2>
+  
+  <div class="collection-grid">
+    <div class="collection-features">
+      <div class="collection-feature">
+        <h4>📊 Click Tabella</h4>
+        <p>Fai click su una tabella HTML nel capitolo estratto. Si aprirà una finestra di dialogo per aggiungere la tabella alla raccolta.</p>
+      </div>
+      <div class="collection-feature">
+        <h4>📋 Struttura Preservata</h4>
+        <p>La struttura della tabella (righe, colonne, celle) viene preservata fedelmente nella raccolta.</p>
+      </div>
+    </div>
+    <div class="collection-visual">
+      <img src="addtocollectiontable.png" alt="Aggiunta chunks tabelle">
+    </div>
+  </div>
+</section>
+
+<section class="collection-section">
+  <div class="section-label">Ispezione</div>
+  <h2>Funzionalità <em>Ispezione Raccolta</em></h2>
+  
+  <div class="collection-grid">
+    <div class="collection-features">
+      <div class="collection-feature">
+        <h4>🔍 Visualizza Contenuto</h4>
+        <p>Clicca sull'icona della collezione nella toolbar per aprire il pannello ispezione. Visualizza tutti i chunks attualmente salvati con anteprima.</p>
+      </div>
+      <div class="collection-feature">
+        <h4>🗑️ Rimuovi Singoli</h4>
+        <p>Nel pannello ispezione, clicca sulla X accanto a ogni chunk per rimuoverlo individualmente dalla raccolta.</p>
+      </div>
+      <div class="collection-feature">
+        <h4>📦 Gestione Completa</h4>
+        <p>Puoi visualizzare, selezionare, o cancellare chunks specifici prima di procedere con l'export o l'invio all'editor.</p>
+      </div>
+    </div>
+    <div class="collection-visual">
+      <img src="inspectcollection.png" alt="Ispezione raccolta">
     </div>
   </div>
 </section>
 
 <section class="cta-section">
-  <h2>Non perdere <em>il segno</em></h2>
-  <p>Usa i segnalibri per tenere traccia dei tuoi progressi e salvare le posizioni più importanti.</p>
+  <h2>Raccogli e <em>crea</em></h2>
+  <p>Seleziona i contenuti che ti servono, gestisci la tua collezione e trasformali in un documento.</p>
   <div class="cta-buttons">
     <a href="index.html" class="btn-primary">← Torna alla Home</a>
-    <a href="extractchapter.html" class="btn-secondary">Scopri Extract →</a>
+    <a href="extractchapter.html" class="btn-secondary">Scopri Estrai →</a>
   </div>
 </section>
 
